@@ -1,7 +1,18 @@
-import type { NextConfig } from "next";
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+  },
 
-const nextConfig: NextConfig = {
-  /* config options here */
-};
+  transpilePackages: [
+    '@tensorflow/tfjs',
+    '@tensorflow-models/coco-ssd',
+  ],
+}
 
-export default nextConfig;
+module.exports = nextConfig
