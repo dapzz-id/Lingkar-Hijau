@@ -4,6 +4,8 @@ import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { AuthProvider } from "@/lib/auth-context"
+import { CartProvider } from "@/lib/cart-context"
+import CartFab from "@/components/cart/cart-fab"
 import { classifyPlasticFromImage } from "@/lib/ai-classifier"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -25,7 +27,12 @@ export default function RootLayout({
   return (
     <html lang="id" suppressHydrationWarning>
       <body className={`font-sans antialiased`}>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <CartProvider>
+            {children}
+            <CartFab />
+          </CartProvider>
+        </AuthProvider>
         <Analytics />
       </body>
     </html>

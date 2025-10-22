@@ -112,7 +112,7 @@ export default function LeaderboardPage() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-foreground">{entry.city}</h3>
-                      <p className="text-sm text-foreground/60">{entry.points.toLocaleString()} poin</p>
+                      <p className="text-sm text-foreground/60">{entry.points.toLocaleString('id-ID')} poin</p>
                     </div>
                   </div>
 
@@ -120,13 +120,13 @@ export default function LeaderboardPage() {
                     {entry.trend === "up" && (
                       <div className="flex items-center gap-1 text-green-600">
                         <TrendingUp className="w-4 h-4" />
-                        <span className="text-sm font-semibold">+{entry.change.toLocaleString()}</span>
+                        <span className="text-sm font-semibold">+{entry.change.toLocaleString('id-ID')}</span>
                       </div>
                     )}
                     {entry.trend === "down" && (
                       <div className="flex items-center gap-1 text-red-600">
                         <TrendingDown className="w-4 h-4" />
-                        <span className="text-sm font-semibold">{entry.change.toLocaleString()}</span>
+                        <span className="text-sm font-semibold">{entry.change.toLocaleString('id-ID')}</span>
                       </div>
                     )}
                     {entry.trend === "stable" && <div className="text-foreground/60 text-sm">Stabil</div>}
@@ -155,7 +155,7 @@ export default function LeaderboardPage() {
                         <Zap className="w-4 h-4 text-primary" />
                         <span className="text-sm text-foreground/60">Level {entry.level}</span>
                         <span className="text-sm text-foreground/60">•</span>
-                        <span className="text-sm text-foreground/60">{entry.points.toLocaleString()} poin</span>
+                        <span className="text-sm text-foreground/60">{entry.points.toLocaleString('id-ID')} poin</span>
                       </div>
                     </div>
                   </div>
