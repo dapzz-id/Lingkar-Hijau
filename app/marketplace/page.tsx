@@ -7,6 +7,8 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Heart, Star, ShoppingCart, Search, Leaf } from "lucide-react"
+import Link from "next/link"
+import { useCart } from "@/lib/cart-context"
 
 const products = [
   {
@@ -81,6 +83,7 @@ export default function MarketplacePage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [favorites, setFavorites] = useState(new Set())
   const [sortBy, setSortBy] = useState("popular")
+  const { addItem } = useCart()
 
   const filteredProducts = products.filter((product) => product.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
@@ -131,11 +134,15 @@ export default function MarketplacePage() {
         {/* Products Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProducts.map((product) => (
-            <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+            <Link key={product.id} href={`/marketplace/${product.id}`}>
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
               {/* Product Image */}
               <div className={`h-48 ${product.image} relative`}>
                 <button
-                  onClick={() => toggleFavorite(product.id)}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    toggleFavorite(product.id)
+                  }}
                   className="absolute top-3 right-3 p-2 bg-background/80 rounded-lg hover:bg-background transition"
                 >
                   <Heart
@@ -173,23 +180,38 @@ export default function MarketplacePage() {
                 {/* Price */}
                 <div className="mb-4">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-bold text-primary">Rp {product.price.toLocaleString()}</span>
+                    <span className="text-lg font-bold text-primary">Rp {product.price.toLocaleString('id-ID')}</span>
                     <span className="text-xs text-foreground/50 line-through">
-                      Rp {product.originalPrice.toLocaleString()}
+                      Rp {product.originalPrice.toLocaleString('id-ID')}
                     </span>
                   </div>
                   <p className="text-xs text-green-600 font-semibold">
-                    Hemat Rp {(product.originalPrice - product.price).toLocaleString()}
+                    Hemat Rp {(product.originalPrice - product.price).toLocaleString('id-ID')}
                   </p>
                 </div>
 
                 {/* Add to Cart Button */}
-                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault()
+                    addItem(
+                      {
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        image: product.image,
+                      },
+                      1,
+                    )
+                  }}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
                   <ShoppingCart className="w-4 h-4 mr-2" />
                   Tambah ke Keranjang
                 </Button>
               </div>
             </Card>
+            </Link>
           ))}
         </div>
       </main>

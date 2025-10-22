@@ -92,7 +92,14 @@ export default function Navigation() {
                 <div className="w-20 h-9 bg-muted rounded-lg animate-pulse" />
               ) : user ? (
                 <>
-                  <span className="text-sm text-foreground/70 px-3 my-auto pb-0.5">{user.name}</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="btn-style1"
+                    onClick={() => router.push("/dashboard")}
+                  >
+                    {user.name}
+                  </Button>
                   <Button variant="outline" size="sm" className="btn-style1" onClick={handleLogout}>
                     Keluar
                   </Button>
@@ -132,9 +139,19 @@ export default function Navigation() {
               {loading ? (
                 <div className="w-full h-9 bg-muted rounded-lg animate-pulse" />
               ) : user ? (
-                <Button variant="outline" size="sm" className="flex-1 bg-transparent" onClick={handleLogout}>
-                  Keluar
-                </Button>
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 bg-transparent"
+                    onClick={() => router.push("/dashboard")}
+                  >
+                    Dashboard
+                  </Button>
+                  <Button variant="outline" size="sm" className="flex-1 bg-transparent" onClick={handleLogout}>
+                    Keluar
+                  </Button>
+                </>
               ) : (
                 <>
                   <Button
