@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { LayoutDashboard, Leaf, Menu, X, Moon, Sun } from "lucide-react"
+import { LayoutDashboard, Leaf, Menu, X, Moon, Sun, LogOut } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
@@ -49,6 +49,7 @@ export default function Navigation() {
 
   const handleLogout = async () => {
     await logout()
+    setIsOpen(false) // Tutup mobile menu setelah logout
     router.push("/")
     router.refresh()
   }
@@ -88,10 +89,10 @@ export default function Navigation() {
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-4">
             {user && (
-              <div className="flex items-center space-x-2 mr-2">
-                <span className="hidden sm:inline text-foreground/70">
+              <div className="hidden md:flex items-center space-x-2 mr-2">
+                <span className="text-foreground/70">
                   Halo, {user.name}
                 </span>
               </div>
@@ -99,21 +100,58 @@ export default function Navigation() {
             
             <button
               onClick={toggleDarkMode}
-              className="btn-style-icon"
+              className="btn-style-icon p-2 hover:bg-muted rounded-lg transition"
               aria-label="Toggle dark mode"
             >
               {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-foreground/70" />}
             </button>
 
-            <div className="hidden sm:flex gap-2">
-              {loading ? (
-                <div className="w-20 h-9 bg-muted rounded-lg animate-pulse" />
-              ) : null}
-            </div>
+            {/* Desktop Logout Button */}
+            {user && (
+              <div className="hidden md:block">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 bg-transparent hover:bg-destructive/10 hover:text-destructive border-destructive/20 text-destructive"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Keluar
+                </Button>
+              </div>
+            )}
 
+            {!user && !loading && (
+              <div className="hidden md:flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-transparent"
+                  onClick={() => router.push("/login")}
+                >
+                  Masuk
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-primary hover:bg-primary/90"
+                  onClick={() => router.push("/register")}
+                >
+                  Daftar
+                </Button>
+              </div>
+            )}
+
+            {loading && (
+              <div className="hidden md:block">
+                <div className="w-20 h-9 bg-muted rounded-lg animate-pulse" />
+              </div>
+            )}
 
             {/* Mobile Menu Button */}
-            <button onClick={() => setIsOpen(!isOpen)} className="md:hidden p-2 hover:bg-muted rounded-lg">
+            <button 
+              onClick={() => setIsOpen(!isOpen)} 
+              className="md:hidden p-2 hover:bg-muted rounded-lg transition"
+            >
               {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
@@ -127,45 +165,76 @@ export default function Navigation() {
                 key={link.href}
                 href={link.href}
                 className="block px-4 py-2 text-foreground/70 hover:text-foreground hover:bg-muted rounded-lg transition"
+                onClick={() => setIsOpen(false)}
               >
                 {link.label}
               </Link>
             ))}
-            <div className="flex gap-2 px-4 pt-2">
+            
+            <div className="border-t border-border pt-4 mt-2">
               {loading ? (
-                <div className="w-full h-9 bg-muted rounded-lg animate-pulse" />
+                <div className="w-full h-9 bg-muted rounded-lg animate-pulse mx-4" />
               ) : user ? (
-                <>
+                <div className="space-y-2 px-4">
+                  <div className="flex items-center gap-2 px-2 py-1 mb-2">
+                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                      <span className="text-primary font-semibold text-sm">
+                        {user.name?.charAt(0).toUpperCase() || "U"}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground text-sm">Halo, {user.name}</p>
+                      <p className="text-foreground/60 text-xs">{user.email}</p>
+                    </div>
+                  </div>
+                  
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1 bg-transparent"
-                    onClick={() => router.push("/dashboard")}
+                    className="w-full bg-transparent flex items-center gap-2"
+                    onClick={() => {
+                      router.push("/dashboard")
+                      setIsOpen(false)
+                    }}
                   >
+                    <LayoutDashboard className="w-4 h-4" />
                     Dashboard
                   </Button>
-                  <Button variant="outline" size="sm" className="flex-1 bg-transparent" onClick={handleLogout}>
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full bg-transparent flex items-center gap-2 hover:bg-destructive/10 hover:text-destructive border-destructive/20 text-destructive"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="w-4 h-4" />
                     Keluar
                   </Button>
-                </>
+                </div>
               ) : (
-                <>
+                <div className="flex gap-2 px-4">
                   <Button
                     variant="outline"
                     size="sm"
                     className="flex-1 bg-transparent"
-                    onClick={() => router.push("/login")}
+                    onClick={() => {
+                      router.push("/login")
+                      setIsOpen(false)
+                    }}
                   >
                     Masuk
                   </Button>
                   <Button
                     size="sm"
                     className="flex-1 bg-primary hover:bg-primary/90"
-                    onClick={() => router.push("/register")}
+                    onClick={() => {
+                      router.push("/register")
+                      setIsOpen(false)
+                    }}
                   >
                     Daftar
                   </Button>
-                </>
+                </div>
               )}
             </div>
           </div>
