@@ -201,7 +201,7 @@ export default function DashboardPage() {
                 ))}
               </AnimatePresence>
               <Button variant="outline" className="w-full mt-2 border-gray-300 text-gray-800 hover:bg-gray-100">
-                <a href="/dashboard/products">Kelola Semua Produk</a>
+                <a href="/marketplace">Kelola Semua Produk</a>
               </Button>
             </CardContent>
           </Card>

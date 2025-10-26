@@ -38,7 +38,7 @@ export default function Navigation() {
       { href: "/catalog", label: "Katalog" },
       { href: "/marketplace", label: "Marketplace" },
       { href: "/forum", label: "Forum" },
-      { href: "/products/sell", label: "Jual Produk" },
+      { href: "/products", label: "Jual Produk" },
       { href: "/profile", label: "Profil" },
     ]
     : [

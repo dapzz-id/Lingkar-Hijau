@@ -9,6 +9,7 @@ interface User {
   city?: string
   points: number
   level: number
+  avatar_url: string
 }
 
 interface AuthContextType {

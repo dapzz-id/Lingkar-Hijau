@@ -36,8 +36,7 @@ export default function DashboardSidebar() {
     { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/dashboard/products", icon: Package, label: "Pengelolaan Produk" },
     { href: "/marketplace", icon: Store, label: "Marketplace" },
-    { href: "/dashboard/achievements", icon: Medal, label: "Achievements" },
-    { href: "/dashboard/profile", icon: User, label: "Profit" },
+    { href: "/dashboard/profile", icon: User, label: "Profil" },
   ]
 
   const handleLogout = async () => {

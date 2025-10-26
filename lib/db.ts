@@ -1,4 +1,5 @@
 import mysql from "mysql2/promise";
+import type { RowDataPacket, ResultSetHeader } from "mysql2";
 
 const pool = mysql.createPool({
   host: process.env.DATABASE_HOST,
@@ -11,16 +12,23 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
-export async function query(sql: string, values?: any[]) {
+// Generic query helper with typed result
+// Usage examples:
+//  - SELECT: const rows = await query<RowDataPacket[]>(sql, params)
+//  - INSERT/UPDATE/DELETE: const result = await query<ResultSetHeader>(sql, params)
+export async function query<T = any>(sql: string, values?: any[]): Promise<T> {
   const connection = await pool.getConnection();
   try {
-    console.log("Executing SQL:", sql); // Logging untuk debugging
-    console.log("With values:", values); // Logging nilai parameter
-    const [results] = await connection.execute(sql, values || []); // Gunakan array kosong jika values undefined
-    return results;
+    console.log("Executing SQL:", sql);
+    console.log("With values:", values);
+    const [results] = await connection.execute<RowDataPacket[] | ResultSetHeader>(
+      sql,
+      values || []
+    );
+    return results as unknown as T;
   } catch (error) {
     console.error("Database query error:", error);
-    throw error; // Lempar error agar bisa ditangani di level atas
+    throw error;
   } finally {
     connection.release();
   }

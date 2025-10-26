@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
-import { getAuthCookie, verifyToken } from "@/lib/auth"; // Sesuaikan path
+import { getAuthCookie, verifyToken } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,88 +19,118 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { productId, comment, rating, transactionId, hasReviewed } = body;
 
-    if (!productId || !transactionId || !comment || rating === undefined) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    if (!productId || !transactionId || rating === undefined) {
+      return NextResponse.json({ error: "Product ID, Transaction ID, and Rating are required" }, { status: 400 });
     }
 
-    let reviewSql, reviewParams;
-    let newAverageRating, newReviewsCount;
+    if (rating < 1 || rating > 5) {
+      return NextResponse.json({ error: "Rating must be between 1 and 5" }, { status: 400 });
+    }
 
+    // Cek apakah transaksi valid dan milik user
+    const transactionCheck = await query(
+      `SELECT id, id_product, id_user, count_rate 
+       FROM history_transactions 
+       WHERE id = ? AND id_user = ? AND id_product = ? AND status = 'completed'`,
+      [transactionId, userId, productId]
+    ) as Array<{ id: string; id_product: string; id_user: string; count_rate: number | null }>;
+
+    if (!transactionCheck || transactionCheck.length === 0) {
+      return NextResponse.json({ error: "Invalid transaction or transaction not found" }, { status: 400 });
+    }
+
+    // Cek apakah produk ada
     const productSql = `
-      SELECT rating, reviews_count
+      SELECT id, seller_id, rating, reviews_count
       FROM marketplace_products
       WHERE id = ?
     `;
-    const productResults = await query(productSql, [productId]) as Array<{ rating: number, reviews_count: number }>;
+    const productResults = await query(productSql, [productId]) as Array<{ 
+      id: string; 
+      seller_id: string; 
+      rating: number; 
+      reviews_count: number 
+    }>;
+    
     if (!productResults || productResults.length === 0) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
-    let currentRating = productResults[0].rating || 0;
-    let currentReviewsCount = productResults[0].reviews_count || 0;
+
+    const product = productResults[0];
+    let currentRating = product.rating || 0;
+    let currentReviewsCount = product.reviews_count || 0;
+    let newAverageRating = currentRating;
+    let newReviewsCount = currentReviewsCount;
 
     if (hasReviewed) {
-      reviewSql = `
-        UPDATE reviews
-        SET comment_buyer = ?, id_buyer = ?
-        WHERE id_buyer = ? AND id_products = ?
-      `;
-      reviewParams = [comment, userId, userId, productId];
+      // Update review yang sudah ada
+      const oldReviewCheck = await query(
+        `SELECT id, count_rate FROM reviews WHERE id_buyer = ? AND id_products = ? AND id_transaction = ?`,
+        [userId, productId, transactionId]
+      ) as Array<{ id: string; count_rate: number }>;
 
-      const oldRateSql = `
-        SELECT count_rate
-        FROM history_transaction
-        WHERE id = ?
-      `;
-      const oldRateResults = await query(oldRateSql, [transactionId]) as Array<{ count_rate: number }>;
-      const oldRate = oldRateResults.length > 0 ? oldRateResults[0].count_rate || 0 : 0;
+      if (oldReviewCheck && oldReviewCheck.length > 0) {
+        const oldReview = oldReviewCheck[0];
+        const oldRating = oldReview.count_rate || 0;
 
-      if (currentReviewsCount > 0) {
-        const totalOldRating = currentRating * currentReviewsCount;
-        const totalNewRating = totalOldRating - oldRate + rating;
-        newAverageRating = totalNewRating / currentReviewsCount;
+        // Update review
+        await query(
+          `UPDATE reviews 
+           SET comment_buyer = ?, count_rate = ?, updated_at = NOW()
+           WHERE id = ?`,
+          [comment || null, rating, oldReview.id]
+        );
+
+        // Hitung rating baru
+        if (currentReviewsCount > 0) {
+          const totalOldRating = currentRating * currentReviewsCount;
+          const totalNewRating = totalOldRating - oldRating + rating;
+          newAverageRating = totalNewRating / currentReviewsCount;
+        } else {
+          newAverageRating = rating;
+        }
       } else {
-        newAverageRating = rating;
+        return NextResponse.json({ error: "Review not found for update" }, { status: 404 });
       }
-
-      const updateTransactionSql = `
-        UPDATE history_transaction
-        SET count_rate = ?, rated = 'Sudah'
-        WHERE id = ?
-      `;
-      await query(updateTransactionSql, [rating, transactionId]);
     } else {
-      reviewSql = `
-        INSERT INTO reviews (id_seller, id_buyer, id_products, comment_buyer, created_at)
-        VALUES ((SELECT seller_id FROM marketplace_products WHERE id = ?), ?, ?, ?, NOW())
-      `;
-      reviewParams = [productId, userId, productId, comment];
+      // Insert review baru
+      await query(
+        `INSERT INTO reviews 
+         (id_seller, id_buyer, id_products, id_transaction, comment_buyer, count_rate, created_at) 
+         VALUES (?, ?, ?, ?, ?, ?, NOW())`,
+        [product.seller_id, userId, productId, transactionId, comment || null, rating]
+      );
 
+      // Hitung rating baru
       const totalOldRating = currentRating * currentReviewsCount;
       const totalNewRating = totalOldRating + rating;
       newReviewsCount = currentReviewsCount + 1;
       newAverageRating = totalNewRating / newReviewsCount;
-
-      // Update history_transaction
-      const updateTransactionSql = `
-        UPDATE history_transaction
-        SET count_rate = ?, rated = 'Sudah'
-        WHERE id = ?
-      `;
-      await query(updateTransactionSql, [rating, transactionId]);
     }
 
-    await query(reviewSql, reviewParams);
+    // Update rating di history_transactions
+    await query(
+      `UPDATE history_transactions 
+       SET count_rate = ?, rated = 'Sudah'
+       WHERE id = ? AND id_user = ?`,
+      [rating, transactionId, userId]
+    );
 
     // Update marketplace_products
-    const updateProductSql = `
-      UPDATE marketplace_products
-      SET rating = ?, reviews_count = ?
-      WHERE id = ?
-    `;
-    const updateProductParams = [newAverageRating, newReviewsCount || currentReviewsCount, productId];
-    await query(updateProductSql, updateProductParams);
+    await query(
+      `UPDATE marketplace_products 
+       SET rating = ?, reviews_count = ?
+       WHERE id = ?`,
+      [newAverageRating, newReviewsCount, productId]
+    );
 
-    return NextResponse.json({ success: true }, { status: 200 });
+    return NextResponse.json({ 
+      success: true,
+      message: hasReviewed ? "Review updated successfully" : "Review submitted successfully",
+      newRating: newAverageRating,
+      newReviewsCount: newReviewsCount
+    }, { status: 200 });
+
   } catch (error) {
     console.error("Post review error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";

@@ -20,7 +20,7 @@ type Product = {
   seller_id?: string | number
   seller_name?: string
   image_url?: string
-  rating?: number | string | null
+  rating?: number
   reviews_count?: number
   description?: string
   reviews?: Array<{
@@ -53,28 +53,6 @@ export default function Page() {
   const [newComment, setNewComment] = useState<string>("")
   const [newRating, setNewRating] = useState<number>(0)
   const { user, loading: authLoading } = useAuth()
-
-  // Helper function to safely convert rating to number
-  const getRatingNumber = (rating: number | string | null | undefined): number => {
-    if (rating === null || rating === undefined) return 0
-    if (typeof rating === 'number') return rating
-    if (typeof rating === 'string') {
-      const num = parseFloat(rating)
-      return isNaN(num) ? 0 : num
-    }
-    return 0
-  }
-
-  // Helper function to format rating display
-  const formatRating = (rating: number | string | null | undefined): string => {
-    const num = getRatingNumber(rating)
-    return num > 0 ? num.toFixed(1) : "0.0"
-  }
-
-  // Helper function to get integer rating for star display
-  const getIntegerRating = (rating: number | string | null | undefined): number => {
-    return Math.floor(getRatingNumber(rating))
-  }
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -278,9 +256,6 @@ export default function Page() {
     ? Math.round(((productData.original_price - productData.price) / productData.original_price) * 100)
     : 0
 
-  const ratingNumber = getRatingNumber(productData.rating)
-  const integerRating = getIntegerRating(productData.rating)
-
   return (
     <div className="min-h-screen bg-gray-100">
       <Navigation />
@@ -358,7 +333,7 @@ export default function Page() {
                       <span
                         key={i}
                         className={`text-sm sm:text-lg ${
-                          i < integerRating ? "text-yellow-500" : "text-gray-300"
+                          i < Math.floor(productData.rating || 0) ? "text-yellow-500" : "text-gray-300"
                         }`}
                       >
                         ★
@@ -366,7 +341,7 @@ export default function Page() {
                     ))}
                   </div>
                   <span className="font-semibold text-gray-800 text-sm sm:text-base">
-                    {formatRating(productData.rating)}
+                    {productData.rating ? productData.rating.toFixed(1) : "0.0"}
                   </span>
                 </div>
                 <span className="text-gray-600 text-xs sm:text-sm">

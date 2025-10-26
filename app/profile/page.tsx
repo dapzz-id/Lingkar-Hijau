@@ -14,10 +14,8 @@ export default function DashboardProfilePage() {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid md:grid-cols-[16rem_1fr] gap-8">
-          <DashboardSidebar />
-
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="">
           <div className="space-y-8">
             {/* Header Section */}
             <div className="space-y-2">

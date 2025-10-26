@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     const userId = decoded.userId;
-    console.log("Authenticated user ID (raw):", userId, "Type:", typeof userId);
+    console.log("Authenticated user ID:", userId, "Type:", typeof userId);
 
     const searchParams = request.nextUrl.searchParams;
     const productId = Number.parseInt(searchParams.get("product_id") ?? "", 10);
@@ -29,39 +29,72 @@ export async function GET(request: NextRequest) {
       console.log("Invalid productId:", searchParams.get("product_id"));
       return NextResponse.json({ error: "Invalid product ID" }, { status: 400 });
     }
-    console.log("Product ID (parsed):", productId, "Type:", typeof productId);
+    console.log("Product ID:", productId, "Type:", typeof productId);
 
+    // Cek apakah user sudah pernah membeli produk ini di history_transactions
     const sql = `
-      SELECT id, rated, count_rate
-      FROM history_transaction
-      WHERE id_buyer = ? AND id_products = ?
+      SELECT 
+        ht.id, 
+        ht.rated, 
+        ht.count_rate,
+        r.comment_buyer,
+        r.id as review_id
+      FROM history_transactions ht
+      LEFT JOIN reviews r ON ht.id = r.id_transaction AND r.id_products = ?
+      WHERE ht.id_user = ? AND ht.id_product = ? AND ht.status = 'completed'
+      ORDER BY ht.created_at DESC
       LIMIT 1
     `;
-    const params = [userId, productId];
+    const params = [productId, userId, productId];
     console.log("Executing check purchase SQL:", sql, "with params:", params);
     const results = await query(sql, params);
 
-    console.log("Query results (raw):", results);
+    console.log("Query results:", results);
 
-    // Type assertion for results as RowDataPacket[]
+    // Type assertion for results
     interface TransactionRow {
       id: number;
       rated: string;
       count_rate: number;
+      comment_buyer: string | null;
+      review_id: number | null;
     }
     const typedResults = results as TransactionRow[];
 
     if (!Array.isArray(typedResults) || typedResults.length === 0) {
-      console.log("No transaction found for userId:", userId, "productId:", productId);
-      return NextResponse.json({ canReview: false, hasReviewed: false }, { status: 200 });
+      console.log("No completed transaction found for userId:", userId, "productId:", productId);
+      return NextResponse.json({ 
+        canReview: false, 
+        hasReviewed: false,
+        message: "User belum membeli produk ini atau transaksi belum completed" 
+      }, { status: 200 });
     }
 
     const transaction = typedResults[0];
-    const hasReviewed = transaction.rated === "Sudah";
+    
+    // User bisa review jika transaksi completed
     const canReview = true;
-    console.log("Transaction found:", transaction);
+    
+    // User sudah review jika rated = 'Sudah' ATAU ada review_id
+    const hasReviewed = transaction.rated === "Sudah" || transaction.review_id !== null;
+    
+    console.log("Transaction found:", {
+      transactionId: transaction.id,
+      rated: transaction.rated,
+      count_rate: transaction.count_rate,
+      hasReview: transaction.review_id !== null,
+      comment_buyer: transaction.comment_buyer
+    });
 
-    return NextResponse.json({ canReview, hasReviewed, transactionId: transaction.id, count_rate: transaction.count_rate }, { status: 200 });
+    return NextResponse.json({ 
+      canReview, 
+      hasReviewed, 
+      transactionId: transaction.id, 
+      count_rate: transaction.count_rate || 0,
+      comment_buyer: transaction.comment_buyer || "",
+      review_id: transaction.review_id
+    }, { status: 200 });
+
   } catch (error) {
     console.error("Check purchase error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
