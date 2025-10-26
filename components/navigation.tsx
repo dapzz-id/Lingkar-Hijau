@@ -33,23 +33,47 @@ export default function Navigation() {
     }
   }
 
+  // Smooth scroll function
+  const smoothScroll = (href: string) => {
+    const targetId = href.replace('/#', '')
+    const targetElement = document.getElementById(targetId)
+    
+    if (targetElement) {
+      targetElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
+    }
+  }
+
+  const handleNavClick = (href: string) => {
+    if (href.startsWith('/#')) {
+      // Handle smooth scroll for anchor links
+      smoothScroll(href)
+      setIsOpen(false) // Close mobile menu
+    } else {
+      // Handle regular navigation
+      setIsOpen(false)
+    }
+  }
+
   const navLinks = user
     ? [
-      { href: "/catalog", label: "Katalog" },
-      { href: "/marketplace", label: "Marketplace" },
-      { href: "/forum", label: "Forum" },
-      { href: "/products", label: "Jual Produk" },
-      { href: "/profile", label: "Profil" },
-    ]
+        { href: "/catalog", label: "Katalog" },
+        { href: "/marketplace", label: "Marketplace" },
+        { href: "/forum", label: "Forum" },
+        { href: "/products", label: "Jual Produk" },
+        { href: "/profile", label: "Profil" },
+      ]
     : [
-      { href: "/#features", label: "Fitur" },
-      { href: "/#impact", label: "Dampak" },
-      { href: "/#contact", label: "Contact" },
-    ]
+        { href: "/#features", label: "Fitur" },
+        { href: "/#impact", label: "Dampak" },
+        { href: "/#contact", label: "Kontak" },
+      ]
 
   const handleLogout = async () => {
     await logout()
-    setIsOpen(false) // Tutup mobile menu setelah logout
+    setIsOpen(false)
     router.push("/")
     router.refresh()
   }
@@ -59,45 +83,59 @@ export default function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          { user? 
+          {user ? (
             <Link href="/dashboard" className="flex items-center gap-2 group">
               <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
                 <Leaf className="w-6 h-6 text-primary-foreground" />
               </div>
               <span className="font-bold text-lg text-foreground hidden sm:inline">Lingkar Hijau</span>
             </Link>
-            : 
+          ) : (
             <Link href="/" className="flex items-center gap-2 group">
               <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
                 <Leaf className="w-6 h-6 text-primary-foreground" />
               </div>
               <span className="font-bold text-lg text-foreground hidden sm:inline">Lingkar Hijau</span>
             </Link>
-          }
+          )}
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-foreground/70 hover:text-foreground transition font-medium"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              if (link.href.startsWith('/#')) {
+                // Smooth scroll links
+                return (
+                  <button
+                    key={link.href}
+                    onClick={() => handleNavClick(link.href)}
+                    className="text-foreground/70 hover:text-foreground transition font-medium bg-transparent border-none cursor-pointer"
+                  >
+                    {link.label}
+                  </button>
+                )
+              } else {
+                // Regular links
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="text-foreground/70 hover:text-foreground transition font-medium"
+                  >
+                    {link.label}
+                  </Link>
+                )
+              }
+            })}
           </div>
 
           {/* Right Actions */}
           <div className="flex items-center gap-4">
             {user && (
               <div className="hidden md:flex items-center space-x-2 mr-2">
-                <span className="text-foreground/70">
-                  Halo, {user.name}
-                </span>
+                <span className="text-foreground/70">Halo, {user.name}</span>
               </div>
             )}
-            
+
             <button
               onClick={toggleDarkMode}
               className="btn-style-icon p-2 hover:bg-muted rounded-lg transition"
@@ -121,26 +159,6 @@ export default function Navigation() {
               </div>
             )}
 
-            {!user && !loading && (
-              <div className="hidden md:flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="bg-transparent"
-                  onClick={() => router.push("/login")}
-                >
-                  Masuk
-                </Button>
-                <Button
-                  size="sm"
-                  className="bg-primary hover:bg-primary/90"
-                  onClick={() => router.push("/register")}
-                >
-                  Daftar
-                </Button>
-              </div>
-            )}
-
             {loading && (
               <div className="hidden md:block">
                 <div className="w-20 h-9 bg-muted rounded-lg animate-pulse" />
@@ -148,8 +166,8 @@ export default function Navigation() {
             )}
 
             {/* Mobile Menu Button */}
-            <button 
-              onClick={() => setIsOpen(!isOpen)} 
+            <button
+              onClick={() => setIsOpen(!isOpen)}
               className="md:hidden p-2 hover:bg-muted rounded-lg transition"
             >
               {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -160,17 +178,33 @@ export default function Navigation() {
         {/* Mobile Menu */}
         {isOpen && (
           <div className="md:hidden pb-4 space-y-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="block px-4 py-2 text-foreground/70 hover:text-foreground hover:bg-muted rounded-lg transition"
-                onClick={() => setIsOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
-            
+            {navLinks.map((link) => {
+              if (link.href.startsWith('/#')) {
+                // Smooth scroll links for mobile
+                return (
+                  <button
+                    key={link.href}
+                    onClick={() => handleNavClick(link.href)}
+                    className="block w-full text-left px-4 py-2 text-foreground/70 hover:text-foreground hover:bg-muted rounded-lg transition bg-transparent border-none"
+                  >
+                    {link.label}
+                  </button>
+                )
+              } else {
+                // Regular links for mobile
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="block px-4 py-2 text-foreground/70 hover:text-foreground hover:bg-muted rounded-lg transition"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                )
+              }
+            })}
+
             <div className="border-t border-border pt-4 mt-2">
               {loading ? (
                 <div className="w-full h-9 bg-muted rounded-lg animate-pulse mx-4" />
@@ -187,7 +221,7 @@ export default function Navigation() {
                       <p className="text-foreground/60 text-xs">{user.email}</p>
                     </div>
                   </div>
-                  
+
                   <Button
                     variant="outline"
                     size="sm"
@@ -200,10 +234,10 @@ export default function Navigation() {
                     <LayoutDashboard className="w-4 h-4" />
                     Dashboard
                   </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="w-full bg-transparent flex items-center gap-2 hover:bg-destructive/10 hover:text-destructive border-destructive/20 text-destructive"
                     onClick={handleLogout}
                   >
@@ -211,31 +245,7 @@ export default function Navigation() {
                     Keluar
                   </Button>
                 </div>
-              ) : (
-                <div className="flex gap-2 px-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 bg-transparent"
-                    onClick={() => {
-                      router.push("/login")
-                      setIsOpen(false)
-                    }}
-                  >
-                    Masuk
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="flex-1 bg-primary hover:bg-primary/90"
-                    onClick={() => {
-                      router.push("/register")
-                      setIsOpen(false)
-                    }}
-                  >
-                    Daftar
-                  </Button>
-                </div>
-              )}
+              ) : null}
             </div>
           </div>
         )}

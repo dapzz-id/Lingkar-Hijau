@@ -61,7 +61,7 @@ export default function DashboardPage() {
   if (loading) return <div className="text-center py-10 text-gray-600">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background">
       <Navigation />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

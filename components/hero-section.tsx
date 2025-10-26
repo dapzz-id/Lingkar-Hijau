@@ -2,9 +2,21 @@ import { Button } from "@/components/ui/button"
 import ModelViewer from "./model-viewer"
 import { ArrowRight, Leaf, Sprout } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useEffect } from "react"
+import AOS from "aos"
+import "aos/dist/aos.css"
 
 export default function HeroSection() {
   const router = useRouter()
+
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: true,
+      offset: 100,
+    })
+  }, [])
+
   return (
     <section className="relative overflow-hidden py-10 md:py-18">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 -z-10" />
@@ -14,14 +26,22 @@ export default function HeroSection() {
           <div className="order-1 md:order-1 space-y-6 md:space-y-8">
             {/* Badges */}
             <div className="flex flex-col sm:flex-row gap-2 lg:gap-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20 w-fit">
+              <div 
+                className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20 w-fit"
+                data-aos="fade-right"
+                data-aos-delay="100"
+              >
                 <Leaf className="w-4 h-4 text-primary flex-shrink-0" />
                 <span className="md:text-sm text-xs font-medium text-primary whitespace-nowrap">
                   Indonesia Emas 2045
                 </span>
               </div>
 
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20 w-fit">
+              <div 
+                className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20 w-fit"
+                data-aos="fade-right"
+                data-aos-delay="200"
+              >
                 <Sprout className="w-4 h-4 text-primary flex-shrink-0" />
                 <span className="md:text-sm text-xs font-medium text-primary whitespace-nowrap">
                   <span>Sustainable Development Goals </span>
@@ -31,7 +51,11 @@ export default function HeroSection() {
             </div>
 
             {/* Title */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground leading-tight">
+            <h1 
+              className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground leading-tight"
+              data-aos="fade-up"
+              data-aos-delay="300"
+            >
               Ubah Sampah Menjadi{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
                 Nilai Ekonomi
@@ -49,7 +73,11 @@ export default function HeroSection() {
             </div>
 
             {/* Description */}
-            <p className="text-base sm:text-lg text-foreground/70 leading-relaxed text-justify">
+            <p 
+              className="text-base sm:text-lg text-foreground/70 leading-relaxed text-justify"
+              data-aos="fade-up"
+              data-aos-delay="400"
+            >
               Bergabunglah dengan Lingkar Hijau, platform inovatif yang memanfaatkan teknologi untuk
               mengelola sampah kota secara efektif dan menumbuhkan ekonomi sirkular melalui partisipasi
               masyarakat. Bersama-sama, kita ciptakan lingkungan yang lebih bersih dan berkelanjutan untuk
@@ -57,7 +85,11 @@ export default function HeroSection() {
             </p>
 
             {/* Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <div 
+              className="flex flex-col sm:flex-row gap-4 pt-4"
+              data-aos="fade-up"
+              data-aos-delay="500"
+            >
               <Button
                 size="lg"
                 onClick={() => router.push("/login")}
@@ -74,7 +106,11 @@ export default function HeroSection() {
             </div>
 
             {/* Stats */}
-            <div className="flex justify-between sm:justify-start sm:gap-8 pt-6 text-sm">
+            <div 
+              className="flex justify-between sm:justify-start sm:gap-8 pt-6 text-sm"
+              data-aos="fade-up"
+              data-aos-delay="600"
+            >
               <div className="text-center sm:text-left">
                 <div className="font-bold text-primary text-xl">50K+</div>
                 <div className="text-foreground/60 text-xs sm:text-sm">Pengguna Aktif</div>

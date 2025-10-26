@@ -1,5 +1,8 @@
 import { Card } from "@/components/ui/card"
 import { MapPin, Zap, ShoppingCart, Users, TrendingUp, Recycle } from "lucide-react"
+import { useEffect } from "react"
+import AOS from "aos"
+import "aos/dist/aos.css"
 
 const features = [
   {
@@ -29,12 +32,30 @@ const features = [
 ]
 
 export default function FeaturesSection() {
+  useEffect(() => {
+    AOS.init({
+      duration: 800,
+      once: true,
+      offset: 100,
+    })
+  }, [])
+
   return (
     <section id="features" className="py-20 md:py-28 bg-muted/30">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Fitur Unggulan</h2>
-          <p className="text-lg text-foreground/60 max-w-3xl mx-auto">
+          <h2 
+            className="text-3xl md:text-4xl font-bold text-foreground mb-4"
+            data-aos="fade-up"
+            data-aos-delay="100"
+          >
+            Fitur Unggulan
+          </h2>
+          <p 
+            className="text-lg text-foreground/60 max-w-3xl mx-auto"
+            data-aos="fade-up"
+            data-aos-delay="200"
+          >
             Platform lengkap untuk mengelola sampah, dan berkontribusi pada ekonomi sirkular
           </p>
         </div>
@@ -46,6 +67,9 @@ export default function FeaturesSection() {
               <Card
                 key={idx}
                 className="p-6 hover:shadow-lg transition-shadow border-border/50 hover:border-primary/30"
+                data-aos="fade-up"
+                data-aos-delay={300 + (idx * 100)}
+                data-aos-anchor-placement="top-bottom"
               >
                 <div
                   className={`w-12 h-12 rounded-lg bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4`}
