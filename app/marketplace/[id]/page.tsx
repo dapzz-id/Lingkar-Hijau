@@ -1,282 +1,339 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
-import ProductGallery from "@/components/marketplace/product-gallery"
-import ProductReviews from "@/components/marketplace/product-reviews"
-import RelatedProducts from "@/components/marketplace/related-products"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Heart, Share2, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react"
+import { Heart, Share2, ShoppingCart, Star } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
+import { motion } from "framer-motion"
+import { useAuth } from "@/lib/auth-context"
 
-// Sample product data - in real app, fetch from API
-const productData = {
-  id: 1,
-  name: "Tas Belanja dari Plastik Daur Ulang",
-  seller: "Komunitas Hijau Jakarta",
-  sellerRating: 4.8,
-  sellerReviews: 1250,
-  price: 85000,
-  originalPrice: 120000,
-  rating: 4.8,
-  reviewCount: 245,
-  ecoScore: 95,
-  images: [
-    "bg-gradient-to-br from-blue-400 to-blue-600",
-    "bg-gradient-to-br from-blue-500 to-blue-700",
-    "bg-gradient-to-br from-blue-300 to-blue-500",
-    "bg-gradient-to-br from-blue-600 to-blue-800",
-  ],
-  description:
-    "Tas belanja berkualitas tinggi yang dibuat dari plastik daur ulang berkualitas premium. Desain modern dan fungsional dengan kapasitas besar, cocok untuk belanja sehari-hari atau aktivitas outdoor.",
-  specifications: {
-    material: "Plastik Daur Ulang (HDPE)",
-    dimensions: "40cm x 35cm x 15cm",
-    weight: "250g",
-    capacity: "25 liter",
-    color: "Biru",
-    warranty: "1 tahun",
-  },
-  features: [
-    "Terbuat dari 100% plastik daur ulang",
-    "Desain ergonomis dengan pegangan yang nyaman",
-    "Tahan air dan mudah dibersihkan",
-    "Kapasitas besar hingga 25 liter",
-    "Ramah lingkungan dan dapat didaur ulang kembali",
-    "Tersedia dalam berbagai warna",
-  ],
-  stock: 45,
-  sold: 312,
-  ecoImpact: {
-    plasticSaved: "2.5kg",
-    carbonReduced: "8.5kg CO2",
-    waterSaved: "45 liter",
-  },
-  shipping: {
-    cost: 15000,
-    estimatedDays: "3-5 hari kerja",
-    freeAbove: 200000,
-  },
-  reviews: [
-    {
-      id: 1,
-      author: "Budi Santoso",
-      rating: 5,
-      date: "2 minggu lalu",
-      title: "Produk berkualitas dan ramah lingkungan!",
-      content:
-        "Tas ini sangat bagus, kuat dan tahan lama. Saya sudah menggunakannya setiap hari untuk belanja dan masih dalam kondisi sempurna.",
-      helpful: 45,
-      images: [],
-    },
-    {
-      id: 2,
-      author: "Siti Nurhaliza",
-      rating: 4,
-      date: "1 bulan lalu",
-      title: "Bagus, tapi warna sedikit berbeda",
-      content:
-        "Produk sesuai deskripsi, hanya saja warna di foto terlihat lebih cerah dari aslinya. Tapi tetap bagus dan fungsional.",
-      helpful: 23,
-      images: [],
-    },
-  ],
+type Product = {
+  id: string
+  name: string
+  price: number
+  original_price?: number
+  eco_score?: string | number | null
+  seller_id?: string | number
+  seller_name?: string
+  image_url?: string
+  rating?: number
+  reviews_count?: number
+  description?: string
+  reviews?: Array<{
+    id: string
+    id_products: string
+    id_seller: string
+    id_buyer: string
+    comment_buyer: string
+    reply_comment_by_seller: string | null
+    created_at: string
+    seller_name: string
+    buyer_name: string
+  }>
 }
 
-export default function ProductDetailPage() {
-  const params = useParams()
-  const [quantity, setQuantity] = useState(1)
-  const [isFavorite, setIsFavorite] = useState(false)
-  const [activeTab, setActiveTab] = useState("description")
+export default function Page() {
+  const params = useParams<{ id: string }>()
+  const [quantity, setQuantity] = useState<number>(1)
+  const [isFavorite, setIsFavorite] = useState<boolean>(false)
+  const [activeTab, setActiveTab] = useState<string>("description")
   const { addItem } = useCart()
+  const [productData, setProductData] = useState<Product | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
+  const [userCanReview, setUserCanReview] = useState<boolean>(false)
+  const [hasReviewed, setHasReviewed] = useState<boolean>(false)
+  const [transactionId, setTransactionId] = useState<string | null>(null)
+  const [userReview, setUserReview] = useState<{ comment_buyer: string; count_rate: number } | null>(null)
+  const [newComment, setNewComment] = useState<string>("")
+  const [newRating, setNewRating] = useState<number>(0)
+  const { user, loading: authLoading } = useAuth() // Ambil user dan status loading dari useAuth
 
-  const discount = Math.round(((productData.originalPrice - productData.price) / productData.originalPrice) * 100)
+  useEffect(() => {
+    const fetchProductData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const response = await fetch(`/api/marketplace/${params.id}`)
+        if (!response.ok) throw new Error("Failed to fetch product")
+        const data = (await response.json()) as { data: Product; error?: string }
+        if (data.error) throw new Error(data.error)
+        setProductData(data.data)
+      } catch (err) {
+        console.error("Error fetching product data:", err)
+        setError(err instanceof Error ? err.message : "An unexpected error occurred")
+      } finally {
+        setLoading(false)
+      }
+    }
+    if (params?.id) {
+      fetchProductData()
+    }
+  }, [params?.id])
+
+  useEffect(() => {
+    const checkPurchase = async () => {
+      try {
+        if (authLoading || !user) {
+          console.log("Auth loading or no user:", { authLoading, user });
+          setUserCanReview(false);
+          setHasReviewed(false);
+          return;
+        }
+        const userId = user.id; // Asumsi user memiliki properti id, sesuaikan jika berbeda (misalnya, user.userId)
+
+        console.log("Checking purchase for product:", params.id, "with userId:", userId);
+        const response = await fetch(`/api/check-purchase?product_id=${params.id}`);
+        if (!response.ok) throw new Error(`Failed to check purchase (status: ${response.status})`);
+        const result = await response.json();
+        console.log("Check purchase response:", result);
+        setUserCanReview(result.canReview);
+        setHasReviewed(result.hasReviewed);
+        setTransactionId(result.transactionId);
+        if (result.hasReviewed && result.count_rate) {
+          setUserReview({ comment_buyer: "", count_rate: result.count_rate });
+          setNewRating(result.count_rate);
+        }
+      } catch (err) {
+        console.error("Error checking purchase:", err);
+      }
+    };
+    if (params?.id) checkPurchase();
+  }, [params?.id, authLoading, user]); // Tambahkan authLoading dan user sebagai dependency
+
+  const handleSubmitReview = async () => {
+    try {
+      if (authLoading || !user) throw new Error("Unauthorized");
+      const userId = user.id; // Ambil userId dari useAuth
+
+      const response = await fetch(`/api/reviews`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: params.id,
+          userId,
+          comment: newComment,
+          rating: newRating,
+          transactionId,
+          hasReviewed,
+        }),
+      });
+      if (!response.ok) throw new Error("Failed to submit review");
+      console.log("Review submitted successfully:", await response.json());
+      const fetchProductData = async () => {
+        const response = await fetch(`/api/marketplace/${params.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setProductData(data.data);
+        }
+      };
+      fetchProductData();
+    } catch (err) {
+      console.error("Error submitting review:", err);
+    }
+  };
+
+  if (loading || authLoading) return <div className="text-center py-10 text-gray-600">Loading...</div>
+  if (error) return <div className="text-center py-10 text-red-600">{error}</div>
+  if (!productData) return null
+
+  const discount = productData.original_price
+    ? Math.round(((productData.original_price - productData.price) / productData.original_price) * 100)
+    : 0
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-100">
       <Navigation />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-foreground/60 mb-8">
-          <a href="/marketplace" className="hover:text-foreground transition">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6 md:mb-8 overflow-x-auto"
+        >
+          <a href="/marketplace" className="hover:text-gray-800 transition whitespace-nowrap">
             Marketplace
           </a>
           <span>/</span>
-          <span className="text-foreground">{productData.name}</span>
-        </div>
+          <span className="text-gray-800 whitespace-nowrap truncate max-w-[150px] sm:max-w-none">{productData.name}</span>
+        </motion.div>
 
         {/* Product Main Section */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-12">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 mb-8 sm:mb-10 md:mb-12"
+        >
           {/* Gallery */}
-          <ProductGallery images={productData.images} productName={productData.name} />
+          <div className="h-64 sm:h-80 md:h-96 bg-gray-200 flex items-center justify-center text-gray-500 rounded-lg overflow-hidden">
+            {productData.image_url ? (
+              <img 
+                src={productData.image_url} 
+                alt={productData.name} 
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              "No image available"
+            )}
+          </div>
 
           {/* Product Info */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Header */}
             <div>
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">{productData.name}</h1>
-                  <a href="#" className="text-primary hover:underline text-sm font-medium">
-                    {productData.seller}
-                  </a>
+              <div className="flex items-start justify-between mb-3 sm:mb-4">
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-2 break-words">
+                    {productData.name}
+                  </h1>
+                  <span className="text-blue-600 text-xs sm:text-sm font-medium">
+                    Seller: {productData.seller_name || "Unknown"}
+                  </span>
                 </div>
-                <button onClick={() => setIsFavorite(!isFavorite)} className="p-2 hover:bg-muted rounded-lg transition">
-                  <Heart className={`w-6 h-6 ${isFavorite ? "fill-red-500 text-red-500" : "text-foreground/60"}`} />
+                <button
+                  onClick={() => setIsFavorite(!isFavorite)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition bg-white/80 backdrop-blur-md flex-shrink-0 ml-2"
+                >
+                  <Heart
+                    className={`w-5 h-5 sm:w-6 sm:h-6 ${isFavorite ? "fill-red-500 text-red-500" : "text-gray-500"}`}
+                  />
                 </button>
               </div>
 
               {/* Rating */}
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-4 flex-wrap">
+                <div className="flex items-center gap-1 sm:gap-2">
                   <div className="flex">
                     {[...Array(5)].map((_, i) => (
                       <span
                         key={i}
-                        className={`text-lg ${
-                          i < Math.floor(productData.rating) ? "text-yellow-500" : "text-foreground/20"
+                        className={`text-sm sm:text-lg ${
+                          i < Math.floor(productData.rating || 0) ? "text-yellow-500" : "text-gray-300"
                         }`}
                       >
                         ★
                       </span>
                     ))}
                   </div>
-                  <span className="font-semibold text-foreground">{productData.rating}</span>
+                  <span className="font-semibold text-gray-800 text-sm sm:text-base">{productData.rating || 0}</span>
                 </div>
-                <span className="text-foreground/60">({productData.reviewCount} ulasan)</span>
-                <span className="text-foreground/60">|</span>
-                <span className="text-foreground/60">{productData.sold} terjual</span>
+                <span className="text-gray-600 text-xs sm:text-sm">({productData.reviews_count || 0} ulasan)</span>
               </div>
             </div>
 
             {/* Price Section */}
-            <Card className="p-4 bg-muted/50 border-primary/20">
-              <div className="space-y-3">
-                <div className="flex items-baseline gap-3">
-                  <span className="text-3xl font-bold text-primary">Rp {productData.price.toLocaleString('id-ID')}</span>
-                  <span className="text-lg text-foreground/50 line-through">
-                    Rp {productData.originalPrice.toLocaleString('id-ID')}
+            <Card className="p-3 sm:p-4 bg-white/80 backdrop-blur-md border border-gray-200">
+              <div className="space-y-2 sm:space-y-3">
+                <div className="flex items-baseline gap-2 sm:gap-3 flex-wrap">
+                  <span className="text-2xl sm:text-3xl font-bold text-blue-600">
+                    Rp {Number(productData.price)?.toLocaleString("id-ID") || "0"}
                   </span>
-                  <span className="px-2 py-1 bg-red-500/20 text-red-600 rounded text-sm font-semibold">
-                    -{discount}%
-                  </span>
+                  {productData.original_price && (
+                    <span className="text-base sm:text-lg text-gray-500 line-through">
+                      Rp {Number(productData.original_price)?.toLocaleString("id-ID")}
+                    </span>
+                  )}
+                  {productData.original_price && (
+                    <span className="px-2 py-1 bg-red-500/20 text-red-600 rounded text-xs sm:text-sm font-semibold">
+                      -{discount}%
+                    </span>
+                  )}
                 </div>
-                <p className="text-sm text-green-600 font-semibold">
-                  Hemat Rp {(productData.originalPrice - productData.price).toLocaleString('id-ID')}
-                </p>
+                {productData.original_price && (
+                  <p className="text-xs sm:text-sm text-green-600 font-semibold">
+                    Hemat Rp {(Number(productData.original_price - productData.price) || 0).toLocaleString("id-ID")}
+                  </p>
+                )}
               </div>
             </Card>
 
-            {/* Eco Impact */}
-            <Card className="p-4 border-green-500/30 bg-green-500/5">
-              <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                <span className="text-2xl">🌱</span> Dampak Lingkungan
+            {/* Eco Score */}
+            <Card className="p-3 sm:p-4 bg-white/80 backdrop-blur-md border border-green-200">
+              <h3 className="font-semibold text-gray-800 mb-2 sm:mb-3 flex items-center gap-2">
+                <span className="text-xl sm:text-2xl">🌱</span> Eco Score
               </h3>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <p className="text-xs text-foreground/60 mb-1">Plastik Terselamatkan</p>
-                  <p className="font-bold text-primary">{productData.ecoImpact.plasticSaved}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-foreground/60 mb-1">Karbon Berkurang</p>
-                  <p className="font-bold text-primary">{productData.ecoImpact.carbonReduced}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-foreground/60 mb-1">Air Terhemat</p>
-                  <p className="font-bold text-primary">{productData.ecoImpact.waterSaved}</p>
-                </div>
-              </div>
+              <p className="font-bold text-blue-600 text-sm sm:text-base">{productData.eco_score || "N/A"}</p>
             </Card>
 
             {/* Quantity & Actions */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <span className="text-foreground/60">Jumlah:</span>
-                <div className="flex items-center border border-border rounded-lg">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <span className="text-gray-600 text-sm sm:text-base">Jumlah:</span>
+                <div className="flex items-center border border-gray-200 rounded-lg bg-white/80 backdrop-blur-md">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-3 py-2 hover:bg-muted transition"
+                    className="px-2 sm:px-3 py-1 sm:py-2 hover:bg-gray-100 transition text-sm sm:text-base"
                   >
                     −
                   </button>
-                  <span className="px-4 py-2 font-semibold text-foreground">{quantity}</span>
+                  <span className="px-3 sm:px-4 py-1 sm:py-2 font-semibold text-gray-800 text-sm sm:text-base min-w-[40px] text-center">
+                    {quantity}
+                  </span>
                   <button
-                    onClick={() => setQuantity(Math.min(productData.stock, quantity + 1))}
-                    className="px-3 py-2 hover:bg-muted transition"
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="px-2 sm:px-3 py-1 sm:py-2 hover:bg-gray-100 transition text-sm sm:text-base"
                   >
                     +
                   </button>
                 </div>
-                <span className="text-sm text-foreground/60">Stok: {productData.stock}</span>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3 flex-col sm:flex-row">
                 <Button
                   onClick={() =>
                     addItem(
-                      { id: productData.id, name: productData.name, price: productData.price, image: productData.images[0] },
-                      quantity,
+                      {
+                        id: Number(productData.id),
+                        name: productData.name,
+                        price: productData.price || 0,
+                        image: productData.image_url || "",
+                      },
+                      quantity
                     )
                   }
-                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground text-base py-6"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base py-3 sm:py-6"
                 >
-                  <ShoppingCart className="w-5 h-5 mr-2" />
+                  <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
                   Tambah ke Keranjang
                 </Button>
-                <Button variant="outline" size="lg" className="px-6 bg-transparent">
-                  <Share2 className="w-5 h-5" />
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="px-4 sm:px-6 bg-white/80 backdrop-blur-md py-3 sm:py-6"
+                >
+                  <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
-              </div>
-            </div>
-
-            {/* Shipping & Guarantees */}
-            <div className="space-y-3 pt-4 border-t border-border">
-              <div className="flex items-start gap-3">
-                <Truck className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-semibold text-foreground text-sm">Pengiriman</p>
-                  <p className="text-xs text-foreground/60">
-                    {productData.shipping.estimatedDays} • Rp {productData.shipping.cost.toLocaleString('id-ID')}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Shield className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-semibold text-foreground text-sm">Garansi</p>
-                  <p className="text-xs text-foreground/60">{productData.specifications.warranty}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <RotateCcw className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-semibold text-foreground text-sm">Pengembalian</p>
-                  <p className="text-xs text-foreground/60">30 hari uang kembali</p>
-                </div>
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Tabs Section */}
-        <div className="mb-12">
-          <div className="flex gap-4 border-b border-border mb-6 overflow-x-auto">
-            {["description", "specifications", "reviews"].map((tab) => (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+          className="mb-8 sm:mb-10 md:mb-12"
+        >
+          <div className="flex gap-2 sm:gap-4 border-b border-gray-200 mb-4 sm:mb-6 overflow-x-auto">
+            {["description", "reviews"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-3 font-medium text-sm whitespace-nowrap border-b-2 transition ${
+                className={`px-3 sm:px-4 py-2 sm:py-3 font-medium text-xs sm:text-sm whitespace-nowrap border-b-2 transition ${
                   activeTab === tab
-                    ? "border-primary text-primary"
-                    : "border-transparent text-foreground/60 hover:text-foreground"
+                    ? "border-blue-600 text-blue-600"
+                    : "border-transparent text-gray-600 hover:text-gray-800"
                 }`}
               >
                 {tab === "description" && "Deskripsi"}
-                {tab === "specifications" && "Spesifikasi"}
                 {tab === "reviews" && "Ulasan"}
               </button>
             ))}
@@ -285,48 +342,97 @@ export default function ProductDetailPage() {
           {/* Tab Content */}
           <div>
             {activeTab === "description" && (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-3">Deskripsi Produk</h3>
-                  <p className="text-foreground/70 leading-relaxed">{productData.description}</p>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-3">Fitur Utama</h3>
-                  <ul className="space-y-2">
-                    {productData.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-3 text-foreground/70">
-                        <span className="text-primary font-bold mt-1">✓</span>
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3">Deskripsi Produk</h3>
+                  <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
+                    {productData.description || "No description available"}
+                  </p>
                 </div>
               </div>
             )}
 
-            {activeTab === "specifications" && (
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-4">Spesifikasi Produk</h3>
-                <div className="space-y-3">
-                  {Object.entries(productData.specifications).map(([key, value]) => (
-                    <div key={key} className="flex justify-between py-3 border-b border-border/50">
-                      <span className="text-foreground/60 capitalize">
-                        {key === "warranty" ? "Garansi" : key.replace(/([A-Z])/g, " $1").trim()}
-                      </span>
-                      <span className="font-semibold text-foreground">{value}</span>
+            {activeTab === "reviews" && (
+              <div className="space-y-4 sm:space-y-6">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3">Ulasan Produk</h3>
+                {productData.reviews && productData.reviews.length > 0 ? (
+                  productData.reviews.map((review) => (
+                    <Card key={review.id} className="p-3 sm:p-4 bg-white/80 backdrop-blur-md border border-gray-200">
+                      <div className="flex flex-col gap-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                          <span className="font-semibold text-gray-800 text-sm sm:text-base">
+                            Pembeli: {review.buyer_name}
+                          </span>
+                          <span className="text-gray-600 text-xs sm:text-sm">
+                            {new Date(review.created_at).toLocaleDateString("id-ID", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })}
+                          </span>
+                        </div>
+                        <p className="text-gray-600 text-sm sm:text-base sm:ml-12 mt-1 sm:mt-0">
+                          {review.comment_buyer || "No comment"}
+                        </p>
+                        {review.reply_comment_by_seller && (
+                          <div className="mt-2 sm:ml-12">
+                            <span className="font-semibold text-gray-800 text-sm sm:text-base">
+                              Penjual: {review.seller_name}
+                            </span>
+                            <p className="text-gray-600 text-sm sm:text-base">
+                              {review.reply_comment_by_seller}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+                  ))
+                ) : (
+                  <p className="text-gray-600 text-sm sm:text-base">Belum ada ulasan untuk produk ini.</p>
+                )}
+                
+                {/* Form Review */}
+                {!userCanReview ? (
+                  <p className="text-red-600 text-sm sm:text-base">
+                    Anda hanya dapat memberikan ulasan jika telah membeli produk ini.
+                  </p>
+                ) : (
+                  <div className="mt-4 sm:mt-6">
+                    <h4 className="text-sm sm:text-md font-semibold text-gray-800 mb-2">
+                      {hasReviewed ? "Edit Ulasan" : "Tambah Ulasan"}
+                    </h4>
+                    <textarea
+                      className="w-full p-2 border border-gray-200 rounded-lg bg-white/80 backdrop-blur-md text-sm sm:text-base"
+                      rows={4}
+                      placeholder="Tulis ulasan Anda..."
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                    />
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-2">
+                      <div className="flex">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={`w-5 h-5 sm:w-6 sm:h-6 cursor-pointer ${
+                              star <= newRating ? "text-yellow-500" : "text-gray-300"
+                            }`}
+                            onClick={() => setNewRating(star)}
+                          />
+                        ))}
+                      </div>
+                      <Button 
+                        onClick={handleSubmitReview} 
+                        className="bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base py-2"
+                      >
+                        {hasReviewed ? "Update Ulasan" : "Kirim Ulasan"}
+                      </Button>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )}
               </div>
             )}
-
-            {activeTab === "reviews" && <ProductReviews reviews={productData.reviews} rating={productData.rating} />}
           </div>
-        </div>
-
-        {/* Related Products */}
-        <RelatedProducts currentProductId={productData.id} />
+        </motion.div>
       </main>
 
       <Footer />

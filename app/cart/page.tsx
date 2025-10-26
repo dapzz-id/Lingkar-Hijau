@@ -41,7 +41,7 @@ export default function CartPage() {
                     <div className={`w-16 h-16 rounded-md ${item.image || "bg-muted"}`} />
                     <div>
                       <h3 className="font-semibold text-foreground">{item.name}</h3>
-                      <p className="text-sm text-foreground/60">Rp {item.price.toLocaleString('id-ID')}</p>
+                      <p className="text-sm text-foreground/60">Rp {Number(item.price)?.toLocaleString('id-ID')}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
@@ -66,7 +66,7 @@ export default function CartPage() {
                     </div>
                     <div className="text-right">
                       <div className="font-semibold text-foreground">
-                        Rp {(item.price * item.quantity).toLocaleString('id-ID')}
+                        Rp {Number(item.price * item.quantity)?.toLocaleString('id-ID')}
                       </div>
                       <Button
                         variant="ghost"
@@ -89,7 +89,7 @@ export default function CartPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-foreground/60">Subtotal</span>
-                  <span className="font-bold text-foreground">Rp {total.toLocaleString('id-ID')}</span>
+                  <span className="font-bold text-foreground">Rp {Number(total)?.toLocaleString('id-ID')}</span>
                 </div>
                 <Button className="w-full bg-primary text-primary-foreground">
                   Checkout (dummy)

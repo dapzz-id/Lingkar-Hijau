@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button"
 import ModelViewer from "./model-viewer"
 import { ArrowRight, Leaf, Sprout } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export default function HeroSection() {
+  const router = useRouter()
   return (
     <section className="relative overflow-hidden py-10 md:py-18">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 -z-10" />
@@ -56,10 +58,16 @@ export default function HeroSection() {
 
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Button size="lg" className="bg-primary hover:bg-primary/90 btn-style1">
+              <Button
+                size="lg"
+                onClick={() => router.push("/login")}
+                className="btn-style1 bg-primary hover:bg-primary/90"
+                aria-label="Mulai Sekarang"
+              >
                 Mulai Sekarang
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
+
               <Button size="lg" variant="outline" className="btn-style1">
                 Pelajari Lebih Lanjut
               </Button>

@@ -229,6 +229,7 @@ export async function classifyPlasticFromImage(
 
     // Prediksi dari dua model
     const detections = await cocoModel.detect(imageElement);
+    console.log("Detections:", detections);
     const mobilePred = await mobilenetModel.classify(imageElement);
     const bestMobile = mobilePred[0];
     const labelMobile = bestMobile.className.toLowerCase();

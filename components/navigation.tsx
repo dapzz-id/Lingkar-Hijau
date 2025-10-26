@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Leaf, Menu, X, Moon, Sun } from "lucide-react"
+import { LayoutDashboard, Leaf, Menu, X, Moon, Sun } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
@@ -35,16 +35,17 @@ export default function Navigation() {
 
   const navLinks = user
     ? [
-        { href: "/catalog", label: "Katalog" },
-        { href: "/marketplace", label: "Marketplace" },
-        { href: "/forum", label: "Forum" },
-        { href: "/leaderboard", label: "Leaderboard" },
-      ]
+      { href: "/catalog", label: "Katalog" },
+      { href: "/marketplace", label: "Marketplace" },
+      { href: "/forum", label: "Forum" },
+      { href: "/products/sell", label: "Jual Produk" },
+      { href: "/profile", label: "Profil" },
+    ]
     : [
-        { href: "/#features", label: "Fitur" },
-        { href: "/#impact", label: "Dampak" },
-        { href: "/#contact", label: "Contact" },
-      ]
+      { href: "/#features", label: "Fitur" },
+      { href: "/#impact", label: "Dampak" },
+      { href: "/#contact", label: "Contact" },
+    ]
 
   const handleLogout = async () => {
     await logout()
@@ -57,12 +58,21 @@ export default function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
-              <Leaf className="w-6 h-6 text-primary-foreground" />
-            </div>
-            <span className="font-bold text-lg text-foreground hidden sm:inline">Lingkar Hijau</span>
-          </Link>
+          { user? 
+            <Link href="/dashboard" className="flex items-center gap-2 group">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                <Leaf className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <span className="font-bold text-lg text-foreground hidden sm:inline">Lingkar Hijau</span>
+            </Link>
+            : 
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                <Leaf className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <span className="font-bold text-lg text-foreground hidden sm:inline">Lingkar Hijau</span>
+            </Link>
+          }
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-8">
@@ -78,43 +88,29 @@ export default function Navigation() {
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1">
+            {user && (
+              <div className="flex items-center space-x-2 mr-2">
+                <span className="hidden sm:inline text-foreground/70">
+                  Halo, {user.name}
+                </span>
+              </div>
+            )}
+            
             <button
               onClick={toggleDarkMode}
-              className="p-2 hover:bg-muted rounded-lg transition"
+              className="btn-style-icon"
               aria-label="Toggle dark mode"
             >
-              {isDark ? <Sun className="w-5 h-5 text-primary" /> : <Moon className="w-5 h-5 text-foreground/70" />}
+              {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-foreground/70" />}
             </button>
 
             <div className="hidden sm:flex gap-2">
               {loading ? (
                 <div className="w-20 h-9 bg-muted rounded-lg animate-pulse" />
-              ) : user ? (
-                <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="btn-style1"
-                    onClick={() => router.push("/dashboard")}
-                  >
-                    {user.name}
-                  </Button>
-                  <Button variant="outline" size="sm" className="btn-style1" onClick={handleLogout}>
-                    Keluar
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button variant="outline" size="sm" className="btn-style1" onClick={() => router.push("/login")}>
-                    Masuk
-                  </Button>
-                  <Button size="sm" className="bg-primary hover:bg-primary/90 btn-style1" onClick={() => router.push("/register")}>
-                    Daftar
-                  </Button>
-                </>
-              )}
+              ) : null}
             </div>
+
 
             {/* Mobile Menu Button */}
             <button onClick={() => setIsOpen(!isOpen)} className="md:hidden p-2 hover:bg-muted rounded-lg">

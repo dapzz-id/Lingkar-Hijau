@@ -136,6 +136,10 @@
   @apply hover:text-white cursor-pointer p-5 dark:text-white;
 }
 
+.btn-style-icon{
+  @apply hover:bg-muted rounded-lg transition cursor-pointer p-2;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

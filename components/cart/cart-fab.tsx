@@ -4,11 +4,17 @@ import Link from "next/link"
 import { ShoppingCart } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useCart } from "@/lib/cart-context"
+import { usePathname } from "next/navigation"
 
 export default function CartFab() {
   const { count } = useCart()
   const [mounted, setMounted] = useState(false)
+  const pathname = usePathname()
+
   useEffect(() => setMounted(true), [])
+
+  // Sembunyikan tombol jika bukan di /marketplace
+  if (!pathname.startsWith("/marketplace")) return null
 
   return (
     <Link
@@ -27,4 +33,3 @@ export default function CartFab() {
     </Link>
   )
 }
-

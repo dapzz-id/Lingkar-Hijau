@@ -5,7 +5,7 @@ import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Trophy, TrendingUp, TrendingDown, Award, Zap } from "lucide-react"
+import { Trophy, TrendingUp, TrendingDown, Award, Zap, Medal } from "lucide-react"
 
 const cityLeaderboard = [
   { rank: 1, city: "Jakarta", points: 125000, trend: "up", change: 5200 },
