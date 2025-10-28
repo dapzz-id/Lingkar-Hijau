@@ -63,7 +63,6 @@ export async function POST(request: NextRequest) {
     let newReviewsCount = currentReviewsCount;
 
     if (hasReviewed) {
-      // Update review yang sudah ada
       const oldReviewCheck = await query(
         `SELECT id, count_rate FROM reviews WHERE id_buyer = ? AND id_products = ? AND id_transaction = ?`,
         [userId, productId, transactionId]
@@ -73,7 +72,6 @@ export async function POST(request: NextRequest) {
         const oldReview = oldReviewCheck[0];
         const oldRating = oldReview.count_rate || 0;
 
-        // Update review
         await query(
           `UPDATE reviews 
            SET comment_buyer = ?, count_rate = ?, updated_at = NOW()
@@ -81,7 +79,6 @@ export async function POST(request: NextRequest) {
           [comment || null, rating, oldReview.id]
         );
 
-        // Hitung rating baru
         if (currentReviewsCount > 0) {
           const totalOldRating = currentRating * currentReviewsCount;
           const totalNewRating = totalOldRating - oldRating + rating;
@@ -93,7 +90,6 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Review not found for update" }, { status: 404 });
       }
     } else {
-      // Insert review baru
       await query(
         `INSERT INTO reviews 
          (id_seller, id_buyer, id_products, id_transaction, comment_buyer, count_rate, created_at) 
@@ -108,7 +104,6 @@ export async function POST(request: NextRequest) {
       newAverageRating = totalNewRating / newReviewsCount;
     }
 
-    // Update rating di history_transactions
     await query(
       `UPDATE history_transactions 
        SET count_rate = ?, rated = 'Sudah'
@@ -116,7 +111,6 @@ export async function POST(request: NextRequest) {
       [rating, transactionId, userId]
     );
 
-    // Update marketplace_products
     await query(
       `UPDATE marketplace_products 
        SET rating = ?, reviews_count = ?

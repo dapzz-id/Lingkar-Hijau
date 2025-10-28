@@ -19,8 +19,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid parameters" }, { status: 400 });
     }
 
-    console.log("Query Params:", { threadId, limit, offset }); // Debugging
-
     const sql = `
         SELECT forum_replies.id, thread_id, author_id, content, likes, forum_replies.created_at, users.name AS author_name, users.city AS author_city
         FROM forum_replies

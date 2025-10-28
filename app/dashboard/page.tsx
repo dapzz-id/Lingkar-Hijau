@@ -58,48 +58,41 @@ export default function DashboardPage() {
     fetchDashboardData();
   }, []);
 
-  if (loading) return <div className="text-center py-10 text-gray-600">Loading...</div>;
+  if (loading) return <div className="text-center py-10 text-foreground/60">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       <Navigation />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="space-y-2 mb-8"
+          className="space-y-2 mb-6 sm:mb-8"
         >
-          <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
-          <p className="text-gray-600">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-foreground/60 text-sm sm:text-base">
             Selamat datang kembali! Mari terus berkontribusi untuk Indonesia Emas 2045
           </p>
         </motion.div>
 
-        {/* Stats Overview */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8"
         >
-          <Card className="bg-white/80 backdrop-blur-md border border-gray-200 text-center shadow-sm">
-            <CardContent className="pt-6">
-              <div className="text-3xl font-bold text-gray-800 mb-2">{dashboardData.stats.totalPoints}</div>
-              <div className="text-sm font-medium text-gray-700 mb-1">Total Points</div>
+          <Card className="bg-card border-border text-center">
+            <CardContent className="pt-4 sm:pt-6">
+              <div className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">{dashboardData.stats.totalPoints}</div>
+              <div className="text-sm font-medium text-foreground/70">Total Points</div>
             </CardContent>
           </Card>
-          <Card className="bg-white/80 backdrop-blur-md border border-gray-200 text-center shadow-sm">
-            <CardContent className="pt-6">
-              <div className="text-3xl font-bold text-gray-800 mb-2">{dashboardData.stats.achievementCount}</div>
-              <div className="text-sm font-medium text-gray-700 mb-1">Your Achievement</div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white/80 backdrop-blur-md border border-gray-200 text-center shadow-sm">
-            <CardContent className="pt-6">
-              <div className="text-3xl font-bold text-gray-800 mb-2">{dashboardData.stats.productSoldCount}</div>
-              <div className="text-sm font-medium text-gray-700 mb-1">Your Products</div>
+          <Card className="bg-card border-border text-center">
+            <CardContent className="pt-4 sm:pt-6">
+              <div className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">{dashboardData.stats.productSoldCount}</div>
+              <div className="text-sm font-medium text-foreground/70">Your Products</div>
             </CardContent>
           </Card>
         </motion.div>
@@ -108,20 +101,19 @@ export default function DashboardPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8"
         >
-          {/* Achievement Terbaru */}
-          <Card className="bg-white/80 backdrop-blur-md border border-gray-200 shadow-sm">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg text-gray-800">
-                <Medal className="h-5 w-5 text-yellow-500" />
+          <Card className="bg-card border-border">
+            <CardHeader className="pb-3 sm:pb-4">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-foreground">
+                <Medal className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500" />
                 Achievement Terbaru
               </CardTitle>
-              <CardDescription className="text-gray-600">
+              <CardDescription className="text-foreground/60">
                 Pencapaian yang baru Anda dapatkan
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4">
               <AnimatePresence>
                 {dashboardData.recentAchievements.map((achievement) => (
                   <motion.div
@@ -130,42 +122,41 @@ export default function DashboardPage() {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.5 }}
-                    className="flex items-start gap-4 p-4 rounded-lg bg-white/50"
+                    className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg bg-background/50"
                   >
-                    <div className="text-2xl text-gray-800 flex-shrink-0">{achievement.icon}</div>
+                    <div className="text-xl sm:text-2xl text-foreground flex-shrink-0">{achievement.icon}</div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-semibold text-gray-800">{achievement.name}</h4>
-                        <Badge variant="secondary" className="text-xs bg-gray-200 text-gray-700">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                        <h4 className="font-semibold text-foreground text-sm sm:text-base">{achievement.name}</h4>
+                        <Badge variant="secondary" className="text-xs bg-secondary text-secondary-foreground w-fit">
                           {achievement.rarity}
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">{achievement.description}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs sm:text-sm text-foreground/60 mb-1 sm:mb-2">{achievement.description}</p>
+                      <p className="text-xs text-foreground/40">
                         Unlocked: {new Date(achievement.unlocked_at).toLocaleDateString('id-ID')}
                       </p>
                     </div>
                   </motion.div>
                 ))}
               </AnimatePresence>
-              <Button variant="outline" className="w-full mt-2 border-gray-300 text-gray-800 hover:bg-gray-100">
-                <a href="/dashboard/achievements">Lihat Semua Achievement</a>
+              <Button variant="outline" className="w-full mt-2 border-border text-foreground hover:bg-accent">
+                <a href="/dashboard/achievements" className="w-full">Lihat Semua Achievement</a>
               </Button>
             </CardContent>
           </Card>
 
-          {/* Produk Marketplace Anda */}
-          <Card className="bg-white/80 backdrop-blur-md border border-gray-200 shadow-sm">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg text-gray-800">
-                <Package className="h-5 w-5 text-blue-500" />
+          <Card className="bg-card border-border">
+            <CardHeader className="pb-3 sm:pb-4">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-foreground">
+                <Package className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 Produk Marketplace Anda
               </CardTitle>
-              <CardDescription className="text-gray-600">
+              <CardDescription className="text-foreground/60">
                 Produk yang sedang Anda jual
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4">
               <AnimatePresence>
                 {dashboardData.userProducts.map((product) => (
                   <motion.div
@@ -174,24 +165,24 @@ export default function DashboardPage() {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
                     transition={{ duration: 0.5 }}
-                    className="flex items-start gap-4 p-4 rounded-lg bg-white/50"
+                    className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg bg-background/50"
                   >
-                    <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Recycle className="h-6 w-6 text-gray-600" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Recycle className="h-4 w-4 sm:h-6 sm:w-6 text-foreground/60" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-semibold text-gray-800 truncate">{product.name}</h4>
-                        <Badge variant="outline" className="text-xs text-gray-700 border-gray-300">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                        <h4 className="font-semibold text-foreground text-sm sm:text-base truncate">{product.name}</h4>
+                        <Badge variant="outline" className="text-xs text-foreground/70 border-border w-fit">
                           Eco: {product.eco_score}
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-600 mb-2 capitalize">{product.category}</p>
-                      <div className="flex items-center gap-4">
-                        <span className="font-bold text-blue-600 text-sm">
+                      <p className="text-xs sm:text-sm text-foreground/60 mb-1 sm:mb-2 capitalize">{product.category}</p>
+                      <div className="flex flex-col xs:flex-row xs:items-center gap-1 xs:gap-4">
+                        <span className="font-bold text-primary text-sm">
                           Rp {(Number(product.price)).toLocaleString('id-ID')}
                         </span>
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <div className="flex items-center gap-1 text-xs text-foreground/50">
                           <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                           {product.rating} ({product.reviews_count})
                         </div>
@@ -200,8 +191,8 @@ export default function DashboardPage() {
                   </motion.div>
                 ))}
               </AnimatePresence>
-              <Button variant="outline" className="w-full mt-2 border-gray-300 text-gray-800 hover:bg-gray-100">
-                <a href="/marketplace">Kelola Semua Produk</a>
+              <Button variant="outline" className="w-full mt-2 border-border text-foreground hover:bg-accent">
+                <a href="/marketplace" className="w-full">Kelola Semua Produk</a>
               </Button>
             </CardContent>
           </Card>

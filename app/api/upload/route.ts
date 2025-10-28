@@ -12,12 +12,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 })
     }
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       return NextResponse.json({ error: "File must be an image" }, { status: 400 })
     }
 
-    // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
       return NextResponse.json({ error: "File size must be less than 5MB" }, { status: 400 })
     }
@@ -25,22 +23,21 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    // Generate unique filename
+    // Buat nama file unik
     const timestamp = Date.now()
     const extension = file.name.split('.').pop()
     const filename = `product-${timestamp}.${extension}`
 
-    // Create uploads directory if it doesn't exist
+    // Buat direktori uploads jika belum ada
     const uploadDir = join(process.cwd(), 'public/uploads')
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true })
     }
 
-    // Save file to public/uploads directory
     const filepath = join(uploadDir, filename)
     await writeFile(filepath, buffer)
 
-    // Return the public URL
+    // URL akses publik
     const imageUrl = `/uploads/${filename}`
 
     return NextResponse.json({ 

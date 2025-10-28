@@ -127,51 +127,54 @@ export default function ForumPage() {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Header */}
-        <div className="flex justify-between items-start mb-8">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Forum Lingkungan</h1>
-            <p className="text-foreground/60">Diskusi ide pengurangan sampah dan berbagi best practices</p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+          <div className="space-y-1 sm:space-y-2">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">Forum Lingkungan</h1>
+            <p className="text-foreground/60 text-sm sm:text-base">Diskusi ide pengurangan sampah dan berbagi best practices</p>
           </div>
-          <Button onClick={() => setIsModalOpen(true)} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+          <Button 
+            onClick={() => setIsModalOpen(true)} 
+            className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto"
+          >
             <Plus className="w-4 h-4 mr-2" />
             Buat Thread
           </Button>
         </div>
 
         {/* Search */}
-        <div className="mb-8 relative">
-          <Search className="absolute left-3 top-3 w-5 h-5 text-foreground/40" />
+        <div className="mb-6 sm:mb-8 relative">
+          <Search className="absolute left-3 top-3 w-4 h-4 sm:w-5 sm:h-5 text-foreground/40" />
           <Input
             placeholder="Cari diskusi atau tag..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 w-full md:w-1/2"
+            className="pl-9 sm:pl-10 w-full md:w-3/4 lg:w-1/2"
           />
         </div>
 
         {/* Categories */}
-        <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+        <div className="flex gap-1 sm:gap-2 mb-6 sm:mb-8 overflow-x-auto pb-2 scrollbar-hide">
           {categories.map((category) => (
             <Button
               key={category}
               variant={selectedCategory === category ? "default" : "outline"}
               onClick={() => setSelectedCategory(category)}
-              className="whitespace-nowrap"
+              className="whitespace-nowrap text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 shrink-0"
             >
               {category}
             </Button>
           ))}
         </div>
 
-        {/* Sort */}
-        <div className="mb-6 flex justify-between items-center">
+        {/* Sort and Results */}
+        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
           <p className="text-sm text-foreground/60">{sortedThreads.length} thread ditemukan</p>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="px-3 py-1 rounded-lg border border-border bg-background text-foreground text-sm"
+            className="px-3 py-1.5 sm:py-2 rounded-lg border border-border bg-background text-foreground text-sm w-full sm:w-auto"
           >
             <option value="latest">Terbaru</option>
             <option value="popular">Paling Populer</option>
@@ -180,46 +183,52 @@ export default function ForumPage() {
         </div>
 
         {/* Threads List */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {sortedThreads.map((thread) => (
             <Link href={`/forum/${thread.id}`} key={thread.id}>
-              <Card className="p-4 hover:shadow-lg transition-shadow cursor-pointer border border-border hover:border-primary/50 h-full flex flex-col">
+              <Card className="p-3 sm:p-4 hover:shadow-lg transition-shadow cursor-pointer border border-border hover:border-primary/50 h-full flex flex-col">
                 <div className="flex-1">
-                  <div className="flex items-start gap-2 mb-2">
+                  <div className="flex items-start gap-1.5 sm:gap-2 mb-2">
                     {thread.isPinned && (
-                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">Pinned</span>
+                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded shrink-0">Pinned</span>
                     )}
-                    <span className="text-xs bg-accent/10 text-accent px-2 py-1 rounded">{thread.category}</span>
+                    <span className="text-xs bg-accent/10 text-accent px-2 py-1 rounded shrink-0">{thread.category}</span>
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2 line-clamp-2 hover:text-primary transition">
+                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2 line-clamp-2 hover:text-primary transition">
                     {thread.title}
                   </h3>
-                  <p className="text-foreground/60 text-sm line-clamp-3 mb-4">{thread.content}</p>
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <p className="text-foreground/60 text-xs sm:text-sm line-clamp-3 mb-3 sm:mb-4">{thread.content}</p>
+                  
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-1 sm:gap-2 mt-2">
                     {thread.tags && thread.tags.map((tag) => (
-                      <span key={tag} className="text-xs text-foreground/60 flex items-center gap-1 mt-2">
+                      <span key={tag} className="text-xs text-foreground/60 flex items-center gap-1">
                         <Tag className="w-3 h-3" />
                         {tag}
                       </span>
                     ))}
                   </div>
-                  <p className="text-sm text-foreground/60 mb-2">
+
+                  {/* Author Info */}
+                  <p className="text-xs sm:text-sm text-foreground/60 mb-2 mt-3 sm:mt-4">
                     dibuat oleh <span className="font-semibold">{thread.author_name}</span> dari{" "}
                     <span className="font-semibold">{thread.author_city}</span>
                   </p>
                 </div>
-                <div className="flex gap-4 text-foreground/60 text-sm mt-auto">
+
+                {/* Stats */}
+                <div className="flex gap-3 sm:gap-4 text-foreground/60 text-xs sm:text-sm mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-border/50">
                   <div className="flex items-center gap-1">
-                    <Eye className="w-4 h-4" />
-                    {thread.views}
+                    <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="inline">{thread.views}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <ThumbsUp className="w-4 h-4" />
-                    {thread.likes}
+                    <ThumbsUp className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="inline">{thread.likes}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <MessageCircle className="w-4 h-4" />
-                    {thread.replies}
+                    <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="inline">{thread.replies}</span>
                   </div>
                 </div>
               </Card>
@@ -227,28 +236,52 @@ export default function ForumPage() {
           ))}
         </div>
 
+        {/* Empty State */}
+        {sortedThreads.length === 0 && (
+          <Card className="p-6 sm:p-8 text-center">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+              <MessageCircle className="w-8 h-8 sm:w-10 sm:h-10 text-foreground/30" />
+            </div>
+            <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">Belum ada thread</h3>
+            <p className="text-foreground/60 mb-4 text-sm sm:text-base">
+              {searchQuery || selectedCategory !== "Semua" 
+                ? "Tidak ada thread yang sesuai dengan pencarian Anda" 
+                : "Jadilah yang pertama memulai diskusi"
+              }
+            </p>
+            <Button 
+              onClick={() => setIsModalOpen(true)} 
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Buat Thread Pertama
+            </Button>
+          </Card>
+        )}
+
         {/* Modal for Creating Thread */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-background p-6 rounded-lg w-full max-w-md">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
+            <div className="bg-background p-4 sm:p-6 rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-foreground">Buat Thread Baru</h2>
-                <Button variant="ghost" onClick={() => setIsModalOpen(false)}>
-                  <X className="w-5 h-5" />
+                <h2 className="text-lg sm:text-xl font-semibold text-foreground">Buat Thread Baru</h2>
+                <Button variant="ghost" size="sm" onClick={() => setIsModalOpen(false)}>
+                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
               </div>
               <form onSubmit={handleSubmitThread}>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <Input
                     placeholder="Judul Thread"
                     value={newThread.title}
                     onChange={(e) => setNewThread({ ...newThread, title: e.target.value })}
                     required
+                    className="text-sm sm:text-base"
                   />
                   <select
                     value={newThread.category}
                     onChange={(e) => setNewThread({ ...newThread, category: e.target.value })}
-                    className="w-full p-2 border border-border rounded-lg bg-background text-foreground"
+                    className="w-full p-2 sm:p-3 border border-border rounded-lg bg-background text-foreground text-sm sm:text-base"
                     required
                   >
                     {categories.filter(cat => cat !== "Semua").map((category) => (
@@ -257,14 +290,17 @@ export default function ForumPage() {
                       </option>
                     ))}
                   </select>
-                  <Input
+                  <textarea
                     placeholder="Konten Thread"
                     value={newThread.content}
                     onChange={(e) => setNewThread({ ...newThread, content: e.target.value })}
                     required
-                    className="h-24 resize-none"
+                    className="w-full p-2 sm:p-3 border border-border rounded-lg bg-background text-foreground text-sm sm:text-base h-24 sm:h-32 resize-none focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
-                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm sm:text-base py-2 sm:py-3"
+                  >
                     Buat Thread
                   </Button>
                 </div>

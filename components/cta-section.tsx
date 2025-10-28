@@ -18,8 +18,8 @@ export default function CTASection() {
 
   return (
     <section 
-      id="contact" 
-      className="py-20 md:py-32 bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10"
+      id="contribution" 
+      className="py-20 md:py-32 bg-linear-to-r from-primary/10 via-accent/10 to-secondary/10"
       data-aos="fade-up"
     >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -35,8 +35,7 @@ export default function CTASection() {
           data-aos="fade-up"
           data-aos-delay="300"
         >
-          Jadilah bagian dari solusi. Mulai dari melaporkan sampah, belajar daur ulang, hingga menghasilkan pendapatan
-          dari ekonomi sirkular.
+          Jadilah bagian dari solusi. Mulai dari belajar daur ulang, hingga menghasilkan pendapatan dari ekonomi sirkular.
         </p>
         <div 
           className="flex flex-col sm:flex-row gap-4 justify-center"

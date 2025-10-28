@@ -2,12 +2,10 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getAuthCookie, verifyToken } from "@/lib/auth"
 import { query } from "@/lib/db"
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    const productId = params.id
+    const { id } = await context.params
+    const productId = parseInt(id, 10)
 
     const products = await query(
       `SELECT p.*, u.name as seller_name, u.city as seller_city 
@@ -28,10 +26,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const token = await getAuthCookie()
     if (!token) {
@@ -43,7 +38,8 @@ export async function PUT(
       return NextResponse.json({ error: "Invalid token" }, { status: 401 })
     }
 
-    const productId = params.id
+    const { id } = await context.params
+    const productId = parseInt(id, 10)
     const body = await request.json()
     const { 
       name, 
@@ -55,7 +51,7 @@ export async function PUT(
       image_url 
     } = body
 
-    // Check if product exists and belongs to user
+    // Cek jika produk ada dan milik user
     const existingProducts = await query(
       "SELECT * FROM marketplace_products WHERE id = ? AND seller_id = ?",
       [productId, decoded.userId]
@@ -95,7 +91,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const token = await getAuthCookie()
@@ -108,9 +104,10 @@ export async function DELETE(
       return NextResponse.json({ error: "Invalid token" }, { status: 401 })
     }
 
-    const productId = params.id
+    const { id } = await context.params
+    const productId = parseInt(id, 10)
 
-    // Check if product exists and belongs to user
+    // Cek jika produk ada dan milik user
     const existingProducts = await query(
       "SELECT * FROM marketplace_products WHERE id = ? AND seller_id = ?",
       [productId, decoded.userId]
@@ -120,7 +117,6 @@ export async function DELETE(
       return NextResponse.json({ error: "Product not found or access denied" }, { status: 404 })
     }
 
-    // Delete product
     await query("DELETE FROM marketplace_products WHERE id = ? AND seller_id = ?", [productId, decoded.userId])
     
     return NextResponse.json({ message: "Product deleted successfully" }, { status: 200 })

@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,7 +17,13 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const { login } = useAuth()
+  const { login, user, loading: authLoading } = useAuth()
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.replace("/dashboard")
+    }
+  }, [user, authLoading, router])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,7 +54,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/80 dark:from-background dark:to-background/50 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
+    <div className="min-h-screen bg-linear-to-b from-background to-background/80 dark:from-background dark:to-background/50 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
       <div className="w-full max-w-md">
         {/* Logo */}
         <motion.div
@@ -60,7 +66,7 @@ export default function LoginPage() {
           <Link href="/" className="flex items-center gap-3">
             <motion.div
               whileHover={{ rotate: 10, scale: 1.1 }}
-              className="w-14 h-14 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center shadow-lg"
+              className="w-14 h-14 bg-linear-to-br from-primary to-accent rounded-xl flex items-center justify-center shadow-lg"
             >
               <Leaf className="w-8 h-8 text-primary-foreground" />
             </motion.div>
@@ -86,7 +92,7 @@ export default function LoginPage() {
                   exit={{ opacity: 0, y: -10 }}
                   className="mb-6 p-4 bg-destructive/10 dark:bg-destructive/20 border border-destructive/20 dark:border-destructive/30 rounded-lg flex gap-2"
                 >
-                  <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                  <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
                   <p className="text-sm text-destructive">{error}</p>
                 </motion.div>
               )}

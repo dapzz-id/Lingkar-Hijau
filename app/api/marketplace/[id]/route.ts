@@ -1,9 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    const productId = parseInt(params.id, 10);
+    const { id } = await context.params;
+    const productId = parseInt(id, 10);
 
     if (isNaN(productId)) {
       return NextResponse.json({ error: "Invalid product ID" }, { status: 400 });
@@ -30,7 +31,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         WHERE marketplace_products.id = ?
     `;
     const queryParams = [productId];
-    console.log("Executing SQL:", sql, "with params:", queryParams); // Debug log
     const results = await query(sql, queryParams);
 
     if (!Array.isArray(results)) {
@@ -61,7 +61,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         ORDER BY reviews.created_at DESC
     `;
     const reviewsParams = [productId];
-    console.log("Executing reviews SQL:", reviewsSql, "with params:", reviewsParams);
     const reviewsResults = await query(reviewsSql, reviewsParams);
 
     const responseData = {

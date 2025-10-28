@@ -14,18 +14,18 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    // Generate unique filename
+    // Buat nama file unik
     const timestamp = Date.now()
     const extension = file.name.split('.').pop()
     const filename = `product-${timestamp}.${extension}`
 
-    // Save file to public/uploads directory
+    // Simpan file ke direktori public/uploads
     const uploadDir = join(process.cwd(), 'public/uploads')
     const filepath = join(uploadDir, filename)
 
     await writeFile(filepath, buffer)
 
-    // Return the public URL
+    // URL akses publik
     const imageUrl = `/uploads/${filename}`
 
     return NextResponse.json({ 

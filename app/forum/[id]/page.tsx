@@ -23,14 +23,15 @@ interface ThreadDetail {
   created_at: string
   updated_at: string
   author_id: number
+  is_liked?: boolean
 }
 
 interface Reply {
   id: number
   thread_id: number
   author_id: number
-    author_name: string
-    author_city: string
+  author_name: string
+  author_city: string
   content: string
   likes: number
   created_at: string
@@ -45,6 +46,7 @@ export default function ThreadDetailPage() {
   const [newReply, setNewReply] = useState("")
   const [page, setPage] = useState(1)
   const [totalReplies, setTotalReplies] = useState(0)
+  const [isLiking, setIsLiking] = useState(false)
   const limit = 10
   const { user, loading: authLoading } = useAuth()
 
@@ -154,19 +156,78 @@ export default function ThreadDetailPage() {
       return;
     }
 
+    if (isLiking || !thread) return; // Prevent multiple clicks
+
     try {
-      const action = thread?.likes && thread.likes > 0 ? "unlike" : "like";
+      setIsLiking(true);
+
+      const currentLikes = thread.likes || 0;
+      const isCurrentlyLiked = thread.is_liked;
+
+      const likeKey = `liked_thread_${thread.id}_user_${user.id}`;
+      const newLikeCount = isCurrentlyLiked ? currentLikes - 1 : currentLikes + 1;
+
+      setThread(prev =>
+        prev
+          ? {
+              ...prev,
+              likes: newLikeCount,
+              is_liked: !isCurrentlyLiked,
+            }
+          : null
+      );
+
+      if (!isCurrentlyLiked) {
+        localStorage.setItem(likeKey, "true");
+      } else {
+        localStorage.removeItem(likeKey);
+      }
+
       const response = await fetch(`/api/forum/threads/${params.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({
+          user_id: user.id,
+          action: isCurrentlyLiked ? "unlike" : "like",
+        }),
       });
-      if (!response.ok) throw new Error("Failed to update likes");
+
+      if (!response.ok) {
+        setThread(prev =>
+          prev
+            ? {
+                ...prev,
+                likes: currentLikes,
+                is_liked: isCurrentlyLiked,
+              }
+            : null
+        );
+
+        if (isCurrentlyLiked) {
+          localStorage.setItem(likeKey, "true");
+        } else {
+          localStorage.removeItem(likeKey);
+        }
+
+        throw new Error("Failed to update likes");
+      }
+
       const data = await response.json();
-      setThread((prev) => prev ? { ...prev, likes: data.likes } : null);
+
+      setThread(prev =>
+        prev
+          ? {
+              ...prev,
+              likes: data.likes,
+              is_liked: data.is_liked,
+            }
+          : null
+      );
     } catch (err) {
       console.error("Error liking thread:", err);
       setError(err instanceof Error ? err.message : "Failed to like thread");
+    } finally {
+      setIsLiking(false);
     }
   };
 
@@ -186,76 +247,151 @@ export default function ThreadDetailPage() {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Link href="/forum" className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 mb-8">
+      <main className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        {/* Back Button */}
+        <Link href="/forum" className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 mb-6 sm:mb-8">
           <ArrowLeft className="w-4 h-4" />
           Kembali ke Forum
         </Link>
 
-        <article className="mb-12">
-          <span className="text-xs bg-accent/10 text-accent px-2 py-1 rounded mb-2 inline-block">{thread.category}</span>
-          <h1 className="text-4xl font-bold text-foreground mb-4">{thread.title}</h1>
-          <div className="text-foreground/80 mb-6 prose max-w-none" dangerouslySetInnerHTML={{ __html: thread.content }} />
-          <div className="flex gap-6 text-foreground/60 text-sm">
-            <div className="flex items-center gap-2">
-              <Eye className="w-5 h-5" />
-              {thread.views} Dilihat
+        {/* Thread Content */}
+        <article className="mb-8 sm:mb-12">
+          <span className="text-xs bg-accent/10 text-accent px-2 py-1 rounded mb-2 sm:mb-3 inline-block">
+            {thread.category}
+          </span>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4 leading-tight">
+            {thread.title}
+          </h1>
+          
+          <div 
+            className="text-foreground/80 mb-4 sm:mb-6 prose prose-sm sm:prose-base max-w-none wrap-break-word"
+            dangerouslySetInnerHTML={{ __html: thread.content }} 
+          />
+          
+          {/* Thread Stats */}
+          <div className="flex flex-wrap gap-3 sm:gap-4 md:gap-6 text-foreground/60 text-xs sm:text-sm">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span>{thread.views} Dilihat</span>
             </div>
-            <div className="flex items-center gap-2">
-              <MessageCircle className="w-5 h-5" />
-              {thread.replies_count} Balasan
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span>{thread.replies_count} Balasan</span>
             </div>
-            <div className="flex items-center gap-2">
-              <ThumbsUp className="w-5 h-5" />
-              {thread.likes} Suka
-              <Button
-                variant="ghost"
-                size="sm"
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+              {/* Like Button - Clickable Icon */}
+              <button
                 onClick={handleLike}
-                className="ml-2 p-1 h-auto"
+                disabled={isLiking || authLoading || !user}
+                className={`flex items-center gap-1.5 sm:gap-2 transition-all duration-200 ${
+                  isLiking ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 cursor-pointer'
+                } ${
+                  thread.is_liked 
+                    ? 'text-red-500 hover:text-red-600' 
+                    : 'text-foreground/60 hover:text-foreground/80'
+                }`}
               >
-                {thread.likes && thread.likes > 0 ? "Unlike" : "Like"}
-              </Button>
+                <ThumbsUp 
+                  className={`w-4 h-4 sm:w-5 sm:h-5 transition-all ${
+                    thread.is_liked ? 'fill-current' : ''
+                  }`} 
+                />
+                <span>{thread.likes} Suka</span>
+              </button>
             </div>
           </div>
         </article>
 
-        <section className="space-y-6">
-          <h2 className="text-2xl font-bold text-foreground mb-4">Balasan ({totalReplies})</h2>
+        {/* Replies Section */}
+        <section className="space-y-4 sm:space-y-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-3 sm:mb-4">
+            Balasan ({totalReplies})
+          </h2>
+          
+          {/* Replies List */}
           {replies.length > 0 ? (
-            replies.map((reply) => (
-              <Card key={reply.id} className="p-4">
-                <p className="text-foreground mb-2">{reply.content}</p>
-                <div className="flex justify-between text-foreground/60 text-sm">
-                  <span>{reply.author_name} ({reply.author_city ?? "Kota tidak diketahui"})</span>
-                  <span>{new Date(reply.created_at).toLocaleString()}</span>
-                </div>
-              </Card>
-            ))
+            <div className="space-y-3 sm:space-y-4">
+              {replies.map((reply) => (
+                <Card key={reply.id} className="p-3 sm:p-4">
+                  <p className="text-foreground mb-2 sm:mb-3 text-sm sm:text-base wrap-break-word">
+                    {reply.content}
+                  </p>
+                  <div className="flex flex-col xs:flex-row xs:justify-between gap-1 xs:gap-2 text-foreground/60 text-xs sm:text-sm">
+                    <span className="wrap-break-word">
+                      {reply.author_name} ({reply.author_city ?? "Kota tidak diketahui"})
+                    </span>
+                    <span className="shrink-0">
+                      {new Date(reply.created_at).toLocaleString('id-ID', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </span>
+                  </div>
+                </Card>
+              ))}
+            </div>
           ) : (
-            <p className="text-foreground/60">Belum ada balasan.</p>
+            <Card className="p-6 text-center">
+              <MessageCircle className="w-12 h-12 text-foreground/30 mx-auto mb-3" />
+              <p className="text-foreground/60 text-sm sm:text-base">Belum ada balasan.</p>
+              <p className="text-foreground/40 text-xs sm:text-sm mt-1">Jadilah yang pertama membalas!</p>
+            </Card>
           )}
 
-          <div className="flex justify-between items-center mt-6">
-            <Button onClick={handlePrevPage} disabled={page === 1} variant="outline">
-              Sebelumnya
-            </Button>
-            <span className="text-foreground/60">Halaman {page} dari {Math.ceil(totalReplies / limit)}</span>
-            <Button onClick={handleNextPage} disabled={page * limit >= totalReplies} variant="outline">
-              Selanjutnya
-            </Button>
-          </div>
+          {/* Pagination */}
+          {totalReplies > limit && (
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 mt-4 sm:mt-6">
+              <Button 
+                onClick={handlePrevPage} 
+                disabled={page === 1} 
+                variant="outline"
+                className="w-full sm:w-auto order-2 sm:order-1"
+              >
+                Sebelumnya
+              </Button>
+              <span className="text-foreground/60 text-sm text-center order-1 sm:order-2">
+                Halaman {page} dari {Math.ceil(totalReplies / limit)}
+              </span>
+              <Button 
+                onClick={handleNextPage} 
+                disabled={page * limit >= totalReplies} 
+                variant="outline"
+                className="w-full sm:w-auto order-3"
+              >
+                Selanjutnya
+              </Button>
+            </div>
+          )}
 
-          <form onSubmit={handleSubmitReply} className="mt-8 space-y-4">
-            <Input
-              placeholder="Tambah balasan..."
-              value={newReply}
-              onChange={(e) => setNewReply(e.target.value)}
-              required
-              className="w-full"
-            />
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
-              <MessageCircle className="w-5 h-5 mr-2" />
+          {/* Reply Form */}
+          <form onSubmit={handleSubmitReply} className="mt-6 sm:mt-8 space-y-3 sm:space-y-4">
+            <div className="relative">
+              <Input
+                placeholder="Tambah balasan..."
+                value={newReply}
+                onChange={(e) => setNewReply(e.target.value)}
+                required
+                className="w-full pr-20 text-sm sm:text-base"
+              />
+              {newReply && (
+                <button
+                  type="button"
+                  onClick={() => setNewReply("")}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-foreground/40 hover:text-foreground/60 text-sm"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            <Button 
+              type="submit" 
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm sm:text-base py-2 sm:py-3"
+              disabled={!newReply.trim()}
+            >
+              <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
               Kirim Balasan
             </Button>
           </form>

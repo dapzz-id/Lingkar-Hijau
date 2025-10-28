@@ -12,8 +12,8 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "SmaRTWaste - Platform Manajemen Sampah Indonesia",
-  description: "Platform digital untuk crowdsourcing data sampah, edukasi daur ulang, dan ekonomi sirkular Indonesia",
+  title: "Lingkar Hijau | DevSpark",
+  description: "Platform digital untuk edukasi daur ulang, dan pertumbuhan ekonomi sirkular untuk meraih Indonesia Emas 2045 dan mencapai target SDGs.",
   icons: {
     icon: "/favicon.ico",
   },

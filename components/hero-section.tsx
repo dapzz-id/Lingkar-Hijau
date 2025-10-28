@@ -19,7 +19,7 @@ export default function HeroSection() {
 
   return (
     <section className="relative overflow-hidden py-10 md:py-18">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 -z-10" />
+      <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-accent/5 to-secondary/10 -z-10" />
 
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
         <div className="grid md:grid-cols-2 gap-10 md:gap-12 items-center">
@@ -31,7 +31,7 @@ export default function HeroSection() {
                 data-aos="fade-right"
                 data-aos-delay="100"
               >
-                <Leaf className="w-4 h-4 text-primary flex-shrink-0" />
+                <Leaf className="w-4 h-4 text-primary shrink-0" />
                 <span className="md:text-sm text-xs font-medium text-primary whitespace-nowrap">
                   Indonesia Emas 2045
                 </span>
@@ -42,7 +42,7 @@ export default function HeroSection() {
                 data-aos="fade-right"
                 data-aos-delay="200"
               >
-                <Sprout className="w-4 h-4 text-primary flex-shrink-0" />
+                <Sprout className="w-4 h-4 text-primary shrink-0" />
                 <span className="md:text-sm text-xs font-medium text-primary whitespace-nowrap">
                   <span>Sustainable Development Goals </span>
                   <span className="hidden lg:inline">(SDGs)</span>
@@ -57,7 +57,7 @@ export default function HeroSection() {
               data-aos-delay="300"
             >
               Ubah Sampah Menjadi{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-accent">
                 Nilai Ekonomi
               </span>
             </h1>
@@ -65,7 +65,7 @@ export default function HeroSection() {
             {/* Model Viewer 3D - Mobile */}
             <div className="block md:hidden mt-6">
               <div className="relative h-64 sm:h-80">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl blur-3xl" />
+                <div className="absolute inset-0 bg-linear-to-br from-primary/20 to-accent/20 rounded-3xl blur-3xl" />
                 <div className="relative rounded-3xl border border-primary/20 p-4 h-full flex items-center justify-center">
                   <ModelViewer />
                 </div>
@@ -128,7 +128,7 @@ export default function HeroSection() {
 
           {/* Model Viewer 3D - Desktop */}
           <div className="hidden md:block order-2 relative h-72 sm:h-96 mt-8 md:mt-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl blur-3xl" />
+            <div className="absolute inset-0 bg-linear-to-br from-primary/20 to-accent/20 rounded-3xl blur-3xl" />
             <div className="relative rounded-3xl border border-primary/20 p-6 h-full flex items-center justify-center">
               <ModelViewer />
             </div>

@@ -21,10 +21,10 @@ export default function Footer() {
         <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-foreground/60 text-sm">© {new Date().getFullYear()} Semua hak dilindungi.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
-            <Link href="#" className="text-foreground/60 hover:text-foreground text-sm">
+            <Link href="https://instagram.com/x.dapzz" className="text-foreground/60 hover:text-foreground text-sm">
               Instagram
             </Link>
-            <Link href="#" className="text-foreground/60 hover:text-foreground text-sm">
+            <Link href="https://linkedin.com/in/ditzzyaa" className="text-foreground/60 hover:text-foreground text-sm">
               LinkedIn
             </Link>
           </div>

@@ -54,14 +54,12 @@ export async function POST(request: NextRequest) {
       image_url 
     } = body
 
-    // Validasi required fields
     if (!name || !price || !category) {
       return NextResponse.json({ 
         error: "Name, price, and category are required" 
       }, { status: 400 })
     }
 
-    // Validasi price
     if (price < 0) {
       return NextResponse.json({ 
         error: "Price must be positive" 
@@ -84,7 +82,6 @@ export async function POST(request: NextRequest) {
       ]
     )
 
-    // Get the newly created product
     const newProducts = await query("SELECT * FROM marketplace_products WHERE id = ?", [result.insertId])
     
     if (!Array.isArray(newProducts) || newProducts.length === 0) {

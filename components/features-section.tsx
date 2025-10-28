@@ -72,7 +72,7 @@ export default function FeaturesSection() {
                 data-aos-anchor-placement="top-bottom"
               >
                 <div
-                  className={`w-12 h-12 rounded-lg bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4`}
+                  className={`w-12 h-12 rounded-lg bg-linear-to-br ${feature.color} flex items-center justify-center mb-4`}
                 >
                   <Icon className="w-6 h-6 text-white" />
                 </div>

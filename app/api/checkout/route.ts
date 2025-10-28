@@ -24,7 +24,6 @@ export async function POST(request: NextRequest) {
     // Hitung total poin yang akan ditambahkan (100 poin per item)
     const totalPoints = items.reduce((sum, item) => sum + (item.quantity * 100), 0)
 
-    // Simpan transaksi ke database
     const transactionResult = await query(
       `INSERT INTO transactions (user_id, total_amount, total_points, status) 
        VALUES (?, ?, ?, ?)`,
@@ -33,7 +32,6 @@ export async function POST(request: NextRequest) {
 
     const transactionId = transactionResult.insertId
 
-    // Simpan detail items transaksi
     for (const item of items) {
       await query(
         `INSERT INTO transaction_items 
@@ -50,13 +48,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Update poin user
     await query(
       `UPDATE users SET points = points + ? WHERE id = ?`,
       [totalPoints, decoded.userId]
     )
 
-    // Dapatkan data user yang diperbarui untuk response
     const userResult = await query("SELECT points FROM users WHERE id = ?", [decoded.userId])
     const updatedUser = userResult[0]
 

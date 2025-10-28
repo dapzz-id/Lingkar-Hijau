@@ -59,43 +59,42 @@ export default function MarketplacePage() {
     setFavorites(newFavorites)
   }
 
-  if (loading) return <div className="text-center py-10 text-gray-600">Loading...</div>
+  if (loading) return <div className="text-center py-10 text-foreground/60">Loading...</div>
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       <Navigation />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-8"
+          className="mb-6 sm:mb-8"
         >
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2 text-center">Marketplace Daur Ulang</h1>
-          <p className="text-gray-600 text-center">Jual-beli barang hasil daur ulang dengan kualitas terbaik</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">Marketplace Daur Ulang</h1>
+          <p className="text-foreground/60 text-sm sm:text-base">Jual-beli barang hasil daur ulang dengan kualitas terbaik</p>
         </motion.div>
 
-        {/* Search & Filter */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="grid md:grid-cols-3 gap-4 mb-8"
+          className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8"
         >
           <div className="md:col-span-2 relative">
-            <Search className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
+            <Search className="absolute left-3 top-3 w-4 h-4 sm:w-5 sm:h-5 text-foreground/40" />
             <Input
               placeholder="Cari produk daur ulang..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white/80 backdrop-blur-md border border-gray-200"
+              className="pl-9 sm:pl-10 bg-card border-border"
             />
           </div>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-gray-200 bg-white/80 backdrop-blur-md text-gray-800"
+            className="px-3 sm:px-4 py-2 rounded-lg border border-border bg-card text-foreground text-sm sm:text-base"
           >
             <option value="popular">Paling Populer</option>
             <option value="price-low">Harga Terendah</option>
@@ -104,12 +103,11 @@ export default function MarketplacePage() {
           </select>
         </motion.div>
 
-        {/* Products Grid */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
         >
           <AnimatePresence>
             {products.map((product) => (
@@ -121,14 +119,13 @@ export default function MarketplacePage() {
                 transition={{ duration: 0.5 }}
               >
                 <Link href={`/marketplace/${product.id}`}>
-                  <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer bg-white/80 backdrop-blur-md border border-gray-200">
-                    {/* Product Image */}
+                  <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer bg-card border-border h-full flex flex-col">
                     <div
-                      className="h-50 relative bg-cover bg-center"
+                      className="h-40 sm:h-48 relative bg-cover bg-center"
                       style={{
                         backgroundImage: product.image_url
                           ? `url(${product.image_url})`
-                          : "linear-gradient(to bottom right, #60a5fa, #2563eb)",
+                          : "linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--primary)/0.7))",
                       }}
                     >
                       <button
@@ -136,29 +133,27 @@ export default function MarketplacePage() {
                           e.preventDefault()
                           toggleFavorite(product.id)
                         }}
-                        className="absolute top-3 right-3 p-2 bg-white/80 rounded-lg hover:bg-gray-100 transition"
+                        className="absolute top-2 sm:top-3 right-2 sm:right-3 p-1.5 sm:p-2 bg-background/80 rounded-lg hover:bg-background transition"
                       >
                         <Heart
-                          className={`w-5 h-5 ${
-                            favorites.has(product.id) ? "fill-red-500 text-red-500" : "text-gray-500"
+                          className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                            favorites.has(product.id) ? "fill-red-500 text-red-500" : "text-foreground/40"
                           }`}
                         />
                       </button>
-                      <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-white/80 px-2 py-1 rounded">
-                        <Leaf className="w-4 h-4 text-green-500" />
-                        <span className="text-xs font-semibold text-gray-800">{product.eco_score}</span>
+                      <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 flex items-center gap-1 bg-background/80 px-2 py-1 rounded text-xs">
+                        <Leaf className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
+                        <span className="font-semibold text-foreground">{product.eco_score}</span>
                       </div>
                     </div>
 
-                    {/* Product Info */}
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">{product.name}</h3>
-                      <p className="text-xs text-gray-600 mb-3">
+                    <div className="p-3 sm:p-4 flex-1 flex flex-col">
+                      <h3 className="font-semibold text-foreground mb-2 line-clamp-2 text-sm sm:text-base">{product.name}</h3>
+                      <p className="text-xs text-foreground/60 mb-2 sm:mb-3">
                         {product.seller_name ? `Seller: ${product.seller_name}` : "Unknown Seller"}
                       </p>
 
-                      {/* Rating */}
-                      <div className="flex items-center gap-1 mb-3">
+                      <div className="flex items-center gap-1 mb-2 sm:mb-3">
                         <div className="flex">
                           {[...Array(5)].map((_, i) => (
                             <Star
@@ -166,22 +161,21 @@ export default function MarketplacePage() {
                               className={`w-3 h-3 ${
                                 i < Math.floor(product.rating || 0)
                                   ? "fill-yellow-500 text-yellow-500"
-                                  : "text-gray-300"
+                                  : "text-foreground/20"
                               }`}
                             />
                           ))}
                         </div>
-                        <span className="text-xs text-gray-600">({product.reviews_count || 0})</span>
+                        <span className="text-xs text-foreground/60">({product.reviews_count || 0})</span>
                       </div>
 
-                      {/* Price */}
-                      <div className="mb-4">
+                      <div className="mb-3 sm:mb-4 mt-auto">
                         <div className="flex items-baseline gap-2">
-                          <span className="text-lg font-bold text-blue-600">
+                          <span className="text-base sm:text-lg font-bold text-primary">
                             Rp {(Number(product.price || 0)).toLocaleString("id-ID")}
                           </span>
                           {product.original_price && (
-                            <span className="text-xs text-gray-500 line-through">
+                            <span className="text-xs text-foreground/40 line-through">
                               Rp {(Number(product.original_price || 0)).toLocaleString("id-ID")}
                             </span>
                           )}
@@ -193,7 +187,6 @@ export default function MarketplacePage() {
                         )}
                       </div>
 
-                      {/* Add to Cart Button */}
                       <Button
                         onClick={(e) => {
                           e.preventDefault()
@@ -207,7 +200,7 @@ export default function MarketplacePage() {
                             1
                           )
                         }}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm sm:text-base py-2"
                       >
                         <ShoppingCart className="w-4 h-4 mr-2" />
                         Tambah ke Keranjang

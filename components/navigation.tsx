@@ -4,13 +4,14 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { LayoutDashboard, Leaf, Menu, X, Moon, Sun, LogOut } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
   const [isDark, setIsDark] = useState(false)
   const router = useRouter()
+  const pathname = usePathname()
   const { user, logout, loading } = useAuth()
 
   useEffect(() => {
@@ -21,6 +22,14 @@ export default function Navigation() {
       document.documentElement.classList.add("dark")
     }
   }, [])
+
+  useEffect(() => {
+    if (!user) {
+      router.replace("/")
+    } else if (user && pathname === "/") {
+      router.replace("/dashboard")
+    }
+  }, [user, router])
 
   const toggleDarkMode = () => {
     setIsDark(!isDark)
@@ -33,7 +42,6 @@ export default function Navigation() {
     }
   }
 
-  // Smooth scroll function
   const smoothScroll = (href: string) => {
     const targetId = href.replace('/#', '')
     const targetElement = document.getElementById(targetId)
@@ -48,16 +56,14 @@ export default function Navigation() {
 
   const handleNavClick = (href: string) => {
     if (href.startsWith('/#')) {
-      // Handle smooth scroll for anchor links
       smoothScroll(href)
-      setIsOpen(false) // Close mobile menu
+      setIsOpen(false)
     } else {
-      // Handle regular navigation
       setIsOpen(false)
     }
   }
 
-  const navLinks = user
+  const navLinks = user && pathname !== "/"
     ? [
         { href: "/catalog", label: "Katalog" },
         { href: "/marketplace", label: "Marketplace" },
@@ -68,7 +74,7 @@ export default function Navigation() {
     : [
         { href: "/#features", label: "Fitur" },
         { href: "/#impact", label: "Dampak" },
-        { href: "/#contact", label: "Kontak" },
+        { href: "/#contribution", label: "Kontribusi" },
       ]
 
   const handleLogout = async () => {
@@ -85,14 +91,14 @@ export default function Navigation() {
           {/* Logo */}
           {user ? (
             <Link href="/dashboard" className="flex items-center gap-2 group">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-linear-to-br from-primary to-accent rounded-lg flex items-center justify-center">
                 <Leaf className="w-6 h-6 text-primary-foreground" />
               </div>
               <span className="font-bold text-lg text-foreground hidden sm:inline">Lingkar Hijau</span>
             </Link>
           ) : (
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-linear-to-br from-primary to-accent rounded-lg flex items-center justify-center">
                 <Leaf className="w-6 h-6 text-primary-foreground" />
               </div>
               <span className="font-bold text-lg text-foreground hidden sm:inline">Lingkar Hijau</span>
@@ -103,7 +109,6 @@ export default function Navigation() {
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => {
               if (link.href.startsWith('/#')) {
-                // Smooth scroll links
                 return (
                   <button
                     key={link.href}
@@ -114,7 +119,6 @@ export default function Navigation() {
                   </button>
                 )
               } else {
-                // Regular links
                 return (
                   <Link
                     key={link.href}
@@ -130,7 +134,7 @@ export default function Navigation() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-4">
-            {user && (
+            {user && pathname !== "/" && (
               <div className="hidden md:flex items-center space-x-2 mr-2">
                 <span className="text-foreground/70">Halo, {user.name}</span>
               </div>
@@ -145,7 +149,7 @@ export default function Navigation() {
             </button>
 
             {/* Desktop Logout Button */}
-            {user && (
+            {user && pathname !== "/" && (
               <div className="hidden md:block">
                 <Button
                   variant="outline"
@@ -180,7 +184,6 @@ export default function Navigation() {
           <div className="md:hidden pb-4 space-y-2">
             {navLinks.map((link) => {
               if (link.href.startsWith('/#')) {
-                // Smooth scroll links for mobile
                 return (
                   <button
                     key={link.href}
@@ -191,7 +194,6 @@ export default function Navigation() {
                   </button>
                 )
               } else {
-                // Regular links for mobile
                 return (
                   <Link
                     key={link.href}
@@ -208,7 +210,7 @@ export default function Navigation() {
             <div className="border-t border-border pt-4 mt-2">
               {loading ? (
                 <div className="w-full h-9 bg-muted rounded-lg animate-pulse mx-4" />
-              ) : user ? (
+              ) : user && pathname !== "/" ? (
                 <div className="space-y-2 px-4">
                   <div className="flex items-center gap-2 px-2 py-1 mb-2">
                     <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
@@ -221,19 +223,6 @@ export default function Navigation() {
                       <p className="text-foreground/60 text-xs">{user.email}</p>
                     </div>
                   </div>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full bg-transparent flex items-center gap-2"
-                    onClick={() => {
-                      router.push("/dashboard")
-                      setIsOpen(false)
-                    }}
-                  >
-                    <LayoutDashboard className="w-4 h-4" />
-                    Dashboard
-                  </Button>
 
                   <Button
                     variant="outline"

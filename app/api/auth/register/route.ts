@@ -10,7 +10,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email, password, and name are required" }, { status: 400 })
     }
 
-    // Check if user already exists
     const existingUser = await query("SELECT id FROM users WHERE email = ?", [email])
     if (Array.isArray(existingUser) && existingUser.length > 0) {
       return NextResponse.json({ error: "Email already registered" }, { status: 400 })

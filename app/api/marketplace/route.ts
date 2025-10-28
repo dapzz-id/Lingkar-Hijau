@@ -52,7 +52,6 @@ export async function GET(request: NextRequest) {
     }
     sql += orderByClause;
 
-    console.log("Executing SQL:", sql, "with params:", params); // Debug log
     const results = await query(sql, params);
 
     if (!results || !Array.isArray(results)) {
