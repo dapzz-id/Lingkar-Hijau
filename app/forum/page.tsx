@@ -139,7 +139,7 @@ export default function ForumPage() {
             className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Buat Thread
+            Buat Topik Baru
           </Button>
         </div>
 
@@ -254,17 +254,17 @@ export default function ForumPage() {
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Buat Thread Pertama
+              Buat Topik Pertama
             </Button>
           </Card>
         )}
 
-        {/* Modal for Creating Thread */}
+        {/* Modal for Creating Topic */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
             <div className="bg-background p-4 sm:p-6 rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg sm:text-xl font-semibold text-foreground">Buat Thread Baru</h2>
+                <h2 className="text-lg sm:text-xl font-semibold text-foreground">Buat Topik Baru</h2>
                 <Button variant="ghost" size="sm" onClick={() => setIsModalOpen(false)}>
                   <X className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
@@ -272,11 +272,11 @@ export default function ForumPage() {
               <form onSubmit={handleSubmitThread}>
                 <div className="space-y-3 sm:space-y-4">
                   <Input
-                    placeholder="Judul Thread"
+                    placeholder="Judul Topik"
                     value={newThread.title}
                     onChange={(e) => setNewThread({ ...newThread, title: e.target.value })}
                     required
-                    className="text-sm sm:text-base"
+                    className="border border-border rounded-lg bg-background text-sm sm:text-base p-2 sm:p-3"
                   />
                   <select
                     value={newThread.category}
@@ -291,7 +291,7 @@ export default function ForumPage() {
                     ))}
                   </select>
                   <textarea
-                    placeholder="Konten Thread"
+                    placeholder="Isi Pembahasan..."
                     value={newThread.content}
                     onChange={(e) => setNewThread({ ...newThread, content: e.target.value })}
                     required
@@ -301,7 +301,7 @@ export default function ForumPage() {
                     type="submit" 
                     className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm sm:text-base py-2 sm:py-3"
                   >
-                    Buat Thread
+                    Buat Topik Baru
                   </Button>
                 </div>
               </form>

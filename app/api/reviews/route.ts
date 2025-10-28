@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid transaction or transaction not found" }, { status: 400 });
     }
 
-    // Cek apakah produk ada
+    // Cek apakah produknya ada
     const productSql = `
       SELECT id, seller_id, rating, reviews_count
       FROM marketplace_products

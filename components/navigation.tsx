@@ -24,7 +24,7 @@ export default function Navigation() {
   }, [])
 
   useEffect(() => {
-    if (!user) {
+    if (!user && !loading) {
       router.replace("/")
     } else if (user && pathname === "/") {
       router.replace("/dashboard")

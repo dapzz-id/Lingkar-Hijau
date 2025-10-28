@@ -101,50 +101,8 @@ export default function DashboardPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8"
+          className="grid grid-cols-1 gap-6 sm:gap-8"
         >
-          <Card className="bg-card border-border">
-            <CardHeader className="pb-3 sm:pb-4">
-              <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-foreground">
-                <Medal className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500" />
-                Achievement Terbaru
-              </CardTitle>
-              <CardDescription className="text-foreground/60">
-                Pencapaian yang baru Anda dapatkan
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3 sm:space-y-4">
-              <AnimatePresence>
-                {dashboardData.recentAchievements.map((achievement) => (
-                  <motion.div
-                    key={achievement.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.5 }}
-                    className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg bg-background/50"
-                  >
-                    <div className="text-xl sm:text-2xl text-foreground flex-shrink-0">{achievement.icon}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
-                        <h4 className="font-semibold text-foreground text-sm sm:text-base">{achievement.name}</h4>
-                        <Badge variant="secondary" className="text-xs bg-secondary text-secondary-foreground w-fit">
-                          {achievement.rarity}
-                        </Badge>
-                      </div>
-                      <p className="text-xs sm:text-sm text-foreground/60 mb-1 sm:mb-2">{achievement.description}</p>
-                      <p className="text-xs text-foreground/40">
-                        Unlocked: {new Date(achievement.unlocked_at).toLocaleDateString('id-ID')}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-              <Button variant="outline" className="w-full mt-2 border-border text-foreground hover:bg-accent">
-                <a href="/dashboard/achievements" className="w-full">Lihat Semua Achievement</a>
-              </Button>
-            </CardContent>
-          </Card>
 
           <Card className="bg-card border-border">
             <CardHeader className="pb-3 sm:pb-4">

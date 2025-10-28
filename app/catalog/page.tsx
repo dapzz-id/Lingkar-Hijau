@@ -106,7 +106,7 @@ export default function CatalogPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
         >
-          <Card className="p-8 mb-12 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
+          <Card className="p-8 mb-12 bg-linear-to-br from-primary/5 to-accent/5 border-primary/20">
             <div className="grid md:grid-cols-2 gap-8">
               {/* Upload Area */}
               <div>
@@ -138,7 +138,7 @@ export default function CatalogPage() {
                       transition={{ duration: 0.3 }}
                       className="mt-4"
                     >
-                      <img src={uploadedImage} alt="Uploaded waste" className="w-full h-48 object-cover rounded-lg" />
+                      <img src={uploadedImage} alt="Uploaded waste" className="max-w-full max-h-64 object-contain rounded-lg shadow-sm" />
                       <button
                         onClick={() => {
                           setUploadedImage(null)
@@ -179,7 +179,7 @@ export default function CatalogPage() {
                       className="p-6 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg"
                     >
                       <div className="flex items-start gap-3">
-                        <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                        <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
                         <div>
                           <p className="font-semibold text-red-900 dark:text-red-100 text-sm">Error</p>
                           <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
@@ -213,7 +213,7 @@ export default function CatalogPage() {
                           <p className="text-sm text-foreground/60 mt-1 mb-4">{scanResult.confidence.toFixed(0)}%</p>
                           <div className="bg-accent/10 border border-accent/30 rounded-lg p-4">
                             <div className="flex items-start gap-2">
-                              <Lightbulb className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+                              <Lightbulb className="w-5 h-5 text-accent shrink-0 mt-0.5" />
                               <div>
                                 <p className="font-semibold text-foreground text-sm mb-2">Tips Daur Ulang</p>
                                 <ul className="space-y-1"> {scanResult.tips.map((tip: string, idx: number) => (
@@ -269,7 +269,7 @@ export default function CatalogPage() {
                       }`}
                   >
                     <div
-                      className={`w-12 h-12 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center mb-4`}
+                      className={`w-12 h-12 rounded-lg bg-linear-to-br ${category.color} flex items-center justify-center mb-4`}
                     >
                       <Icon className="w-6 h-6 text-white" />
                     </div>

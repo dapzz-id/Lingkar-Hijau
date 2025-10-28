@@ -70,7 +70,6 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
 
     return NextResponse.json({ data: responseData }, { status: 200 });
   } catch (error) {
-    console.error("Get product detail error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
       { error: "Internal server error", details: message },
