@@ -30,7 +30,7 @@
 | **Anggota Tim** | Kadavi Raditya Alvino<br>Hanifah<br>Naufal Ma'ruf Ashrori |
 | **Asal Sekolah** | SMK Telekomunikasi Telesandi Bekasi |
 | **Link GitHub** | [🔗 Klik Disini](https://github.com/dapzz-id/Lingkar-Hijau.git) |
-| **Link Deploy** | [🔗 Klik Disini] (https://lingkarhijau.syntx.id) |
+| **Link Deploy** | [🔗 Klik Disini](https://lingkar-hijau-eight.vercel.app/) |
 | **Video Demo** | [🎥 Klik Disini](https://youtu.be/Rr7rEzw1D7I) |
 
 ---
