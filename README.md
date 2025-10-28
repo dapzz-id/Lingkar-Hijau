@@ -27,7 +27,7 @@
 |-------------|---------|
 | **Nama Aplikasi** | 🌿 Lingkar Hijau |
 | **Nama Tim**  | DevSpark |
-| **Anggota Tim** | Kadavi Raditya Alvino (Full-Stack)<br>Hanifah (Designer & Project Manager)<br>Naufal Ma'ruf Ashrori (Full-Stack) |
+| **Anggota Tim** | Kadavi Raditya Alvino <b>(Full-Stack)</b><br>Hanifah <b>(Designer & Project Manager)</b><br>Naufal Ma'ruf Ashrori <b>(Full-Stack)</b> |
 | **Asal Sekolah** | SMK Telekomunikasi Telesandi Bekasi |
 | **Link GitHub** | [🔗 Klik Disini](https://github.com/dapzz-id/Lingkar-Hijau.git) |
 | **Link Deploy** | [🔗 Klik Disini](https://lingkar-hijau-eight.vercel.app/) |
