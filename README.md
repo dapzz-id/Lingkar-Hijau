@@ -12,7 +12,9 @@
   <img src="https://img.shields.io/badge/Framework-Next.js-black?logo=nextdotjs" alt="Next.js" />
   <img src="https://img.shields.io/badge/Language-TypeScript-blue?logo=typescript" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Styling-TailwindCSS-06B6D4?logo=tailwindcss" alt="TailwindCSS" />
-  <img src="https://img.shields.io/badge/Goal-SDGs%2013%20:%20Climate%20Action-brightgreen?logo=unitednations" alt="SDGs 13" />
+  <img src="https://img.shields.io/badge/SDG%2011-Kota%20&%20Komunitas%20Berkelanjutan-f39c12?logo=unitednations" alt="SDG 11" />
+  <img src="https://img.shields.io/badge/SDG%2012-Konsumsi%20&%20Produksi%20Bertanggung%20Jawab-27ae60?logo=unitednations" alt="SDG 12" />
+  <img src="https://img.shields.io/badge/SDG%2017-Kemitraan%20untuk%20Tujuan-2980b9?logo=unitednations" alt="SDG 17" />
   <img src="https://img.shields.io/badge/Indonesia%20Emas-2045-red?logo=flag" alt="Indonesia Emas 2045" />
   <img src="https://img.shields.io/badge/Event-IDN%20IT%20Fest%202025-orange?logo=googlemeet" alt="IDN IT Fest 2025" />
 </p>
