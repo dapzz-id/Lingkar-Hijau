@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <b>Platform kolaboratif untuk peduli lingkungan dan pengembangan ekonomi hijau berbasis komunitas.</b>
+  <b>Platform digital untuk edukasi daur ulang, dan pertumbuhan ekonomi sirkular untuk meraih Indonesia Emas 2045 dan mencapai target SDGs.</b>
 </p>
 
 <p align="center">
