@@ -1,11 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { writeFile } from "fs/promises"
-import { join } from "path"
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
+
+const s3 = new S3Client({
+  region: process.env.AWS_REGION!,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
+})
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
-    const file = formData.get('file') as File
+    const file = formData.get("file") as File
 
     if (!file) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 })
@@ -14,27 +21,36 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    // Buat nama file unik
     const timestamp = Date.now()
-    const extension = file.name.split('.').pop()
+    const extension = file.name.split(".").pop()
     const filename = `product-${timestamp}.${extension}`
 
-    // Simpan file ke direktori public/uploads
-    const uploadDir = join(process.cwd(), 'public/uploads')
-    const filepath = join(uploadDir, filename)
+    const bucketName = process.env.AWS_S3_BUCKET_NAME!
+    const uploadParams = {
+      Bucket: bucketName,
+      Key: `uploads/products/${filename}`,
+      Body: buffer,
+      ContentType: file.type
+    }
 
-    await writeFile(filepath, buffer)
+    await s3.send(new PutObjectCommand(uploadParams))
+    const imageUrl = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/uploads/${filename}`
 
-    // URL akses publik
-    const imageUrl = `/uploads/${filename}`
-
-    return NextResponse.json({ 
-      success: true, 
-      imageUrl 
-    }, { status: 200 })
-
+    return NextResponse.json(
+      {
+        success: true,
+        imageUrl,
+      },
+      { status: 200 }
+    )
   } catch (error) {
     console.error("Upload error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 }
+    )
   }
 }
