@@ -116,7 +116,7 @@ export default function ProductsPage() {
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">Produk Saya</h1>
                 <p className="text-foreground/60 mt-1 text-sm sm:text-base">Kelola produk yang Anda jual</p>
               </div>
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto">
+              <Button className="bg-primary btn-default hover:bg-primary/90 w-full sm:w-auto">
                 + Tambah Produk Baru
               </Button>
             </div>
@@ -155,7 +155,7 @@ export default function ProductsPage() {
                 <p className="text-foreground/60 mt-1 text-sm sm:text-base">Kelola produk yang Anda jual</p>
               </div>
               <Button 
-                className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"  
+                className="bg-primary btn-default hover:bg-primary/90 w-full sm:w-auto"  
                 onClick={() => router.push('/products/create')}
               >
                 + Tambah Produk Baru
@@ -197,7 +197,7 @@ export default function ProductsPage() {
                 <p className="text-foreground/60 mt-1 text-sm sm:text-base">Kelola produk yang Anda jual</p>
               </div>
               <Button 
-                className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"  
+                className="bg-primary btn-default hover:bg-primary/90 w-full sm:w-auto"  
                 onClick={() => router.push('/products/create')}
               >
                 + Tambah Produk Baru
@@ -299,46 +299,28 @@ export default function ProductsPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleEdit(product.id)}
-                              className="h-8 w-8 p-0 hover:bg-primary/10"
+                              className="btn-action hover:bg-primary/10"
                             >
-                              <Edit className="h-4 w-4" />
+                              <Edit className="ic-action" />
                             </Button>
+
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDelete(product.id)}
-                              className="h-8 w-8 p-0 hover:bg-destructive/10"
+                              className="btn-action hover:bg-destructive/10"
                             >
-                              <Trash2 className="h-4 w-4 text-destructive" />
+                              <Trash2 className="ic-action text-destructive" />
                             </Button>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-8 p-0 hover:bg-muted"
-                                >
-                                  <MoreVertical className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => handleView(product.id)}>
-                                  <Eye className="h-4 w-4 mr-2" />
-                                  Lihat Detail
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleEdit(product.id)}>
-                                  <Edit className="h-4 w-4 mr-2" />
-                                  Edit Produk
-                                </DropdownMenuItem>
-                                <DropdownMenuItem 
-                                  onClick={() => handleDelete(product.id)}
-                                  className="text-destructive"
-                                >
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  Hapus Produk
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleView(product.id)}
+                              className="btn-action hover:bg-destructive/10"
+                            >
+                              <Eye className="ic-action" />
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -356,7 +338,7 @@ export default function ProductsPage() {
                   <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1.5 sm:mb-2">Belum ada produk</h3>
                   <p className="text-foreground/60 mb-3 sm:mb-4 text-sm sm:text-base">Mulai jual produk eco-friendly Anda sekarang</p>
                   <Button 
-                    className="bg-primary text-primary-foreground w-full sm:w-auto"
+                    className="bg-primary btn-default w-full sm:w-auto"
                     onClick={() => router.push('/products/create')}
                   >
                     + Tambah Produk Pertama
@@ -410,7 +392,7 @@ export default function ProductsPage() {
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => handleDelete(product.id)}
-                            className="text-destructive"
+                            className="hover:text-white"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
                             Hapus Produk
@@ -509,7 +491,7 @@ export default function ProductsPage() {
                   <h3 className="text-base font-semibold text-foreground mb-1.5">Belum ada produk</h3>
                   <p className="text-foreground/60 mb-3 text-sm">Mulai jual produk eco-friendly Anda sekarang</p>
                   <Button 
-                    className="bg-primary text-primary-foreground w-full"
+                    className="bg-primary btn-default w-full"
                     onClick={() => router.push('/products/create')}
                   >
                     + Tambah Produk Pertama

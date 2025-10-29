@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-linear-to-br from-primary to-accent rounded-lg flex items-center justify-center">
                 <Leaf className="w-5 h-5 text-primary-foreground" />
               </div>
               <span className="font-bold text-foreground">Lingkar Hijau</span>
@@ -19,7 +19,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-foreground/60 text-sm">© {new Date().getFullYear()} Semua hak dilindungi.</p>
+          <p className="text-foreground/60 text-sm">© {new Date().getFullYear()} DevSpark | Semua hak dilindungi.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
             <Link href="https://instagram.com/x.dapzz" className="text-foreground/60 hover:text-foreground text-sm">
               Instagram

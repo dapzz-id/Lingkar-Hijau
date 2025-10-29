@@ -53,7 +53,9 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
             reviews.reply_comment_by_seller,
             reviews.created_at,
             seller_users.name AS seller_name,
+            seller_users.avatar_url AS seller_avatar,
             buyer_users.name AS buyer_name,
+            buyer_users.avatar_url AS buyer_avatar,
             ht.count_rate
         FROM reviews
         INNER JOIN users seller_users ON seller_users.id = reviews.id_seller

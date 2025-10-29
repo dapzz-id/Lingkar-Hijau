@@ -249,7 +249,7 @@ export default function ThreadDetailPage() {
 
       <main className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Back Button */}
-        <Link href="/forum" className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 mb-6 sm:mb-8">
+        <Link href="/forum" className="flex items-center gap-2 text-sm btn-default mb-6 sm:mb-8">
           <ArrowLeft className="w-4 h-4" />
           Kembali ke Forum
         </Link>
@@ -316,10 +316,11 @@ export default function ThreadDetailPage() {
                   <p className="text-foreground mb-2 sm:mb-3 text-sm sm:text-base wrap-break-word">
                     {reply.content}
                   </p>
-                  <div className="flex flex-col xs:flex-row xs:justify-between gap-1 xs:gap-2 text-foreground/60 text-xs sm:text-sm">
+                  <div className="flex flex-col xs:justify-between gap-1 xs:gap-2 text-foreground/60 text-xs sm:text-sm">
                     <span className="wrap-break-word">
-                      {reply.author_name} ({reply.author_city ?? "Kota tidak diketahui"})
+                      {reply.author_name}
                     </span>
+                    
                     <span className="shrink-0">
                       {new Date(reply.created_at).toLocaleString('id-ID', {
                         day: 'numeric',
@@ -388,7 +389,7 @@ export default function ThreadDetailPage() {
             </div>
             <Button 
               type="submit" 
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm sm:text-base py-2 sm:py-3"
+              className="w-full bg-primary hover:bg-primary/90 btn-default text-sm sm:text-base py-2 sm:py-3"
               disabled={!newReply.trim()}
             >
               <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />

@@ -158,7 +158,7 @@ export default function ForumPage() {
           </div>
           <Button 
             onClick={() => setIsModalOpen(true)} 
-            className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto btn-default"
           >
             <Plus className="w-4 h-4 mr-2" />
             Buat Topik Baru
@@ -183,7 +183,7 @@ export default function ForumPage() {
               key={category}
               variant={selectedCategory === category ? "default" : "outline"}
               onClick={() => setSelectedCategory(category)}
-              className="whitespace-nowrap text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 shrink-0"
+              className="whitespace-nowrap text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 shrink-0 hover:text-white btn-default"
             >
               {category}
             </Button>
@@ -214,9 +214,9 @@ export default function ForumPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-destructive hover:text-destructive-foreground z-10"
+                    className="absolute top-2 right-2 opacity-100 transition-opacity bg-background/80 hover:bg-destructive hover:text-destructive-foreground cursor-pointer z-10"
                     onClick={(e) => handleDeleteThread(thread.id, e)}
-                    title="Hapus thread"
+                    title="Hapus forum"
                   >
                     <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                   </Button>
@@ -286,7 +286,7 @@ export default function ForumPage() {
             </p>
             <Button 
               onClick={() => setIsModalOpen(true)} 
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="bg-primary hover:bg-primary/90 btn-default"
             >
               <Plus className="w-4 h-4 mr-2" />
               Buat Topik Pertama
@@ -297,10 +297,11 @@ export default function ForumPage() {
         {/* Modal for Creating Topic */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
-            <div className="bg-background p-4 sm:p-6 rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="bg-background dark:shadow-xs dark:shadow-amber-100 p-4 sm:p-6 rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg sm:text-xl font-semibold text-foreground">Buat Topik Baru</h2>
-                <Button variant="ghost" size="sm" onClick={() => setIsModalOpen(false)}>
+
+                <Button variant="ghost" size="sm" onClick={() => setIsModalOpen(false)} className="btn-default">
                   <X className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
               </div>
@@ -334,7 +335,7 @@ export default function ForumPage() {
                   />
                   <Button 
                     type="submit" 
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm sm:text-base py-2 sm:py-3"
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm sm:text-base py-2 sm:py-3 btn-default"
                   >
                     Buat Topik Baru
                   </Button>

@@ -13,7 +13,6 @@ export default function CartFab() {
 
   useEffect(() => setMounted(true), [])
 
-  // Sembunyikan tombol jika bukan di /marketplace
   if (!pathname.startsWith("/marketplace")) return null
 
   return (
@@ -23,7 +22,7 @@ export default function CartFab() {
       aria-label="Buka keranjang"
     >
       <div className="relative">
-        <ShoppingCart className="w-6 h-6" />
+        <ShoppingCart className="w-6 h-6 btn-default" />
         {mounted && count > 0 && (
           <span className="absolute -top-2 -right-2 min-w-5 h-5 px-1.5 inline-flex items-center justify-center rounded-full bg-red-500 text-white text-xs font-semibold">
             {count}

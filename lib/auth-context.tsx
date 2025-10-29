@@ -18,6 +18,9 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>
   register: (name: string, email: string, password: string, city?: string) => Promise<void>
   logout: () => Promise<void>
+  updateProfile: (name: string, email: string, city: string, newAvatarUrl: string | null) => Promise<void>
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>
+  uploadAvatar: (formData: FormData) => Promise<string | null>
   isAuthenticated: boolean
 }
 
@@ -82,8 +85,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
   }
 
+  const updateProfile = async (name: string, email: string, city: string, newAvatarUrl: string | null) => {
+    if(newAvatarUrl === null) {
+      newAvatarUrl = user?.avatar_url || null
+    }
+
+    const response = await fetch("/api/auth/update-profile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, city, newAvatarUrl }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || "Failed to update profile")
+    }
+
+    const data = await response.json()
+    setUser(data.user)
+  }
+
+  const uploadAvatar = async (formData: FormData) => {
+    const response = await fetch("/api/auth/upload-avatar", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to upload avatar");
+    }
+
+    const data = await response.json();
+    return data.avatarUrl;
+  }
+
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    if (newPassword.length < 6) {
+      throw new Error("New password must be at least 6 characters")
+    }
+
+    const response = await fetch("/api/auth/change-password", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || "Failed to change password")
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile, uploadAvatar, changePassword, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   )

@@ -78,7 +78,7 @@ export default function CartPage() {
             <Button 
               variant="outline" 
               onClick={clear} 
-              className="bg-transparent w-full sm:w-auto order-3 sm:order-2"
+              className="bg-transparent w-full sm:w-auto order-3 sm:order-2 btn-default"
             >
               <Trash2 className="w-4 h-4 mr-2" />
               Kosongkan Keranjang
@@ -153,7 +153,7 @@ export default function CartPage() {
                     {/* Product Info */}
                     <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
                       {/* Product Image */}
-                      <div className="flex-shrink-0">
+                      <div className="shrink-0">
                         {item.image ? (
                           item.image.startsWith("http") || item.image.startsWith("/") || item.image.startsWith("data:") ? (
                             <img
@@ -192,17 +192,19 @@ export default function CartPage() {
                       <div className="flex items-center border border-border rounded-lg">
                         <button
                           onClick={() => (item.quantity <= 1 ? removeItem(item.id) : updateQuantity(item.id, item.quantity - 1))}
-                          className="px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-muted transition text-foreground/60 hover:text-foreground"
+                          className="px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-muted transition text-foreground/60 hover:text-foreground btn-default"
                           aria-label="Kurangi"
                         >
                           <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
                         </button>
+
                         <span className="px-2 sm:px-4 py-1.5 sm:py-2 font-semibold text-foreground min-w-8 text-center text-sm sm:text-base">
                           {item.quantity}
                         </span>
+
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-muted transition text-foreground/60 hover:text-foreground"
+                          className="px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-muted transition text-foreground/60 hover:text-foreground btn-default"
                           aria-label="Tambah"
                         >
                           <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -218,7 +220,7 @@ export default function CartPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => removeItem(item.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-500/10 h-8 px-2 sm:px-3 text-xs"
+                          className="text-red-600 hover:text-red-700 dark:hover:text-white cursor-pointer hover:bg-red-500/10 h-8 px-2 sm:px-3 text-xs"
                         >
                           <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                           <span className="hidden xs:inline">Hapus</span>
@@ -253,7 +255,7 @@ export default function CartPage() {
                 </div>
 
                 <Button 
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 text-sm sm:text-base py-2.5 sm:py-3 mt-2"
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 text-sm sm:text-base py-2.5 sm:py-3 mt-2 btn-default"
                   onClick={handleCheckout}
                   disabled={isProcessing}
                 >

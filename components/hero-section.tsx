@@ -2,11 +2,12 @@ import { Button } from "@/components/ui/button"
 import ModelViewer from "./model-viewer"
 import { ArrowRight, Leaf, Sprout } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { useState, useEffect } from "react"
 import AOS from "aos"
 import "aos/dist/aos.css"
 
 export default function HeroSection() {
+  const [userCount, setUserCount] = useState<number | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -15,6 +16,20 @@ export default function HeroSection() {
       once: true,
       offset: 100,
     })
+
+    const fetchUserCount = async () => {
+      try {
+        const res = await fetch("/api/auth/count/users")
+        if (!res.ok) throw new Error("Failed to fetch user count")
+        const data = await res.json()
+        setUserCount(data.total || 0)
+      } catch (err) {
+        console.error(err)
+        setUserCount(0)
+      }
+    }
+
+    fetchUserCount()
   }, [])
 
   return (
@@ -99,10 +114,6 @@ export default function HeroSection() {
                 Mulai Sekarang
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
-
-              <Button size="lg" variant="outline" className="btn-style1">
-                Pelajari Lebih Lanjut
-              </Button>
             </div>
 
             {/* Stats */}
@@ -112,16 +123,16 @@ export default function HeroSection() {
               data-aos-delay="600"
             >
               <div className="text-center sm:text-left">
-                <div className="font-bold text-primary text-xl">50K+</div>
+                <div className="font-bold text-primary text-xl">{userCount !== null ? `${userCount.toLocaleString()}` : "0"}</div>
                 <div className="text-foreground/60 text-xs sm:text-sm">Pengguna Aktif</div>
               </div>
               <div className="text-center sm:text-left">
-                <div className="font-bold text-accent text-xl">500+</div>
+                <div className="font-bold text-accent text-xl">4.300+</div>
                 <div className="text-foreground/60 text-xs sm:text-sm">Bank Sampah</div>
               </div>
               <div className="text-center sm:text-left">
-                <div className="font-bold text-secondary text-xl">2.5M</div>
-                <div className="text-foreground/60 text-xs sm:text-sm">Kg Sampah Terkelola</div>
+                <div className="font-bold text-secondary text-xl">5.7M</div>
+                <div className="text-foreground/60 text-xs sm:text-sm">Ton Sampah Terkelola</div>
               </div>
             </div>
           </div>

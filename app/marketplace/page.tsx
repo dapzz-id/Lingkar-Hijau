@@ -1,44 +1,43 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
+import { motion, AnimatePresence } from "framer-motion"
+import { Star, ShoppingCart, Search, Leaf } from "lucide-react"
+
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Heart, Star, ShoppingCart, Search, Leaf } from "lucide-react"
-import Link from "next/link"
 import { useCart } from "@/lib/cart-context"
-import { motion, AnimatePresence } from "framer-motion"
 
 type Product = {
-  id: string;
-  name: string;
-  price: number;
-  original_price?: number;
-  image_url?: string;
-  seller_id?: string;
-  seller_name?: string;
-  eco_score?: number;
-  rating?: number;
-  reviews_count?: number;
-};
+  id: string
+  name: string
+  price: number
+  original_price?: number
+  image_url?: string
+  seller_id?: string
+  seller_name?: string
+  eco_score?: number
+  rating?: number
+  reviews_count?: number
+}
 
 export default function MarketplacePage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [favorites, setFavorites] = useState(new Set())
   const [sortBy, setSortBy] = useState("popular")
-  const { addItem } = useCart()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const { addItem } = useCart()
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(
-          `/api/marketplace?search=${searchQuery}&sortBy=${sortBy}`
-        )
-        const data = await response.json()
+        const res = await fetch(`/api/marketplace?search=${searchQuery}&sortBy=${sortBy}`)
+        const data = await res.json()
         setProducts(data.data || [])
       } catch (error) {
         console.error("Error fetching products:", error)
@@ -50,32 +49,34 @@ export default function MarketplacePage() {
   }, [searchQuery, sortBy])
 
   const toggleFavorite = (id: string) => {
-    const newFavorites = new Set(favorites)
-    if (newFavorites.has(id)) {
-      newFavorites.delete(id)
-    } else {
-      newFavorites.add(id)
-    }
-    setFavorites(newFavorites)
+    const updated = new Set(favorites)
+    updated.has(id) ? updated.delete(id) : updated.add(id)
+    setFavorites(updated)
   }
 
-  if (loading) return <div className="text-center py-10 text-foreground/60">Loading...</div>
+  if (loading) return <div className="text-center py-10 text-muted">Loading...</div>
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navigation />
 
       <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="mb-6 sm:mb-8"
         >
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">Marketplace Daur Ulang</h1>
-          <p className="text-foreground/60 text-sm sm:text-base">Jual-beli barang hasil daur ulang dengan kualitas terbaik</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">
+            Marketplace Daur Ulang
+          </h1>
+          <p className="text-muted text-sm sm:text-base">
+            Jual-beli barang hasil daur ulang dengan kualitas terbaik
+          </p>
         </motion.div>
 
+        {/* Search & Sort */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -88,9 +89,10 @@ export default function MarketplacePage() {
               placeholder="Cari produk daur ulang..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 sm:pl-10 bg-card border-border"
+              className="input-base"
             />
           </div>
+
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
@@ -103,6 +105,7 @@ export default function MarketplacePage() {
           </select>
         </motion.div>
 
+        {/* Products */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -119,67 +122,62 @@ export default function MarketplacePage() {
                 transition={{ duration: 0.5 }}
               >
                 <Link href={`/marketplace/${product.id}`}>
-                  <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer bg-card border-border h-full flex flex-col">
+                  <Card className="card-hover">
+                    {/* Image */}
                     <div
-                      className="h-40 sm:h-48 relative bg-cover bg-center"
+                      className="h-40 sm:h-48 relative bg-cover aspect-video bg-center"
                       style={{
                         backgroundImage: product.image_url
                           ? `url(${product.image_url})`
                           : "linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--primary)/0.7))",
                       }}
                     >
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault()
-                          toggleFavorite(product.id)
-                        }}
-                        className="absolute top-2 sm:top-3 right-2 sm:right-3 p-1.5 sm:p-2 bg-background/80 rounded-lg hover:bg-background transition"
-                      >
-                        <Heart
-                          className={`w-4 h-4 sm:w-5 sm:h-5 ${
-                            favorites.has(product.id) ? "fill-red-500 text-red-500" : "text-foreground/40"
-                          }`}
-                        />
-                      </button>
                       <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 flex items-center gap-1 bg-background/80 px-2 py-1 rounded text-xs">
                         <Leaf className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
                         <span className="font-semibold text-foreground">{product.eco_score}</span>
                       </div>
                     </div>
 
+                    {/* Details */}
                     <div className="p-3 sm:p-4 flex-1 flex flex-col">
-                      <h3 className="font-semibold text-foreground mb-2 line-clamp-2 text-sm sm:text-base">{product.name}</h3>
-                      <p className="text-xs text-foreground/60 mb-2 sm:mb-3">
+                      <h3 className="font-semibold text-foreground mb-2 line-clamp-2 text-sm sm:text-base">
+                        {product.name}
+                      </h3>
+
+                      <p className="text-xs text-muted mb-2 sm:mb-3">
                         {product.seller_name ? `Seller: ${product.seller_name}` : "Unknown Seller"}
                       </p>
 
+                      {/* Rating */}
                       <div className="flex items-center gap-1 mb-2 sm:mb-3">
                         <div className="flex">
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
-                              className={`w-3 h-3 ${
-                                i < Math.floor(product.rating || 0)
+                              className={`rating-star ${i < Math.floor(product.rating || 0)
                                   ? "fill-yellow-500 text-yellow-500"
                                   : "text-foreground/20"
-                              }`}
+                                }`}
                             />
                           ))}
                         </div>
-                        <span className="text-xs text-foreground/60">({product.reviews_count || 0})</span>
+                        <span className="text-xs text-muted">({product.reviews_count || 0})</span>
                       </div>
 
+                      {/* Harga */}
                       <div className="mb-3 sm:mb-4 mt-auto">
                         <div className="flex items-baseline gap-2">
                           <span className="text-base sm:text-lg font-bold text-primary">
                             Rp {(Number(product.price || 0)).toLocaleString("id-ID")}
                           </span>
+
                           {product.original_price && (
                             <span className="text-xs text-foreground/40 line-through">
                               Rp {(Number(product.original_price || 0)).toLocaleString("id-ID")}
                             </span>
                           )}
                         </div>
+
                         {product.original_price && (
                           <p className="text-xs text-green-600 font-semibold">
                             Hemat Rp {((Number(product.original_price - product.price) || 0)).toLocaleString("id-ID")}
@@ -187,6 +185,7 @@ export default function MarketplacePage() {
                         )}
                       </div>
 
+                      {/* Button */}
                       <Button
                         onClick={(e) => {
                           e.preventDefault()
@@ -200,7 +199,7 @@ export default function MarketplacePage() {
                             1
                           )
                         }}
-                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm sm:text-base py-2"
+                        className="btn-primary"
                       >
                         <ShoppingCart className="w-4 h-4 mr-2" />
                         Tambah ke Keranjang
@@ -213,7 +212,6 @@ export default function MarketplacePage() {
           </AnimatePresence>
         </motion.div>
       </main>
-
       <Footer />
     </div>
   )

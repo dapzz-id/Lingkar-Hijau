@@ -1,23 +1,53 @@
 import { Card } from "@/components/ui/card"
-import { useEffect } from "react"
+import { useState, useEffect } from "react"
 import AOS from "aos"
 import "aos/dist/aos.css"
 
-const stats = [
-  { label: "Pengguna Terdaftar", value: "50,000+", icon: "👥" },
-  { label: "Bank Sampah", value: "500+", icon: "🏪" },
-  { label: "Sampah Terkelola", value: "2.5M kg", icon: "♻️" },
-  { label: "Kota Aktif", value: "34", icon: "🏙️" },
-]
-
 export default function StatsSection() {
+  const [userCount, setUserCount] = useState<number | null>(null)
+  const [forumCount, setForumCount] = useState<number | null>(null)
+
   useEffect(() => {
     AOS.init({
       duration: 800,
       once: true,
       offset: 100,
     })
+
+    const fetchUserCount = async () => {
+      try {
+        const res = await fetch("/api/auth/count/users")
+        if (!res.ok) throw new Error("Failed to fetch user count")
+        const data = await res.json()
+        setUserCount(data.total || 0)
+      } catch (err) {
+        console.error(err)
+        setUserCount(0)
+      }
+    }
+
+    const fetchForumCount = async () => {
+      try {
+        const res = await fetch("/api/auth/count/forum")
+        if (!res.ok) throw new Error("Failed to fetch forum count")
+        const data = await res.json()
+        setForumCount(data.total || 0)
+      } catch (err) {
+        console.error(err)
+        setForumCount(0)
+      }
+    }
+
+    fetchUserCount()
+    fetchForumCount()
   }, [])
+
+  const stats = [
+    { label: "Pengguna Terdaftar", value: userCount !== null ? `${userCount.toLocaleString()}` : "0", icon: "👥" },
+    { label: "Bank Sampah", value: "4.300+", icon: "🏪" },
+    { label: "Sampah Terkelola", value: "5.7 M ton", icon: "♻️" },
+    { label: "Jumlah Forum", value: forumCount !== null ? `${forumCount.toLocaleString()}` : "0", icon: "🗣️" }
+  ]
 
   return (
     <section id="impact" className="py-20 md:py-32">

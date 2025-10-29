@@ -134,12 +134,6 @@ export default function Navigation() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-4">
-            {user && pathname !== "/" && (
-              <div className="hidden md:flex items-center space-x-2 mr-2">
-                <span className="text-foreground/70">Halo, {user.name}</span>
-              </div>
-            )}
-
             <button
               onClick={toggleDarkMode}
               className="btn-style-icon p-2 hover:bg-muted rounded-lg transition"
@@ -155,7 +149,7 @@ export default function Navigation() {
                   variant="outline"
                   size="sm"
                   onClick={handleLogout}
-                  className="flex items-center gap-2 bg-transparent hover:bg-destructive/10 hover:text-destructive border-destructive/20 text-destructive"
+                  className="flex items-center gap-2 bg-transparent hover:bg-destructive/10 hover:text-destructive border-destructive/20 text-destructive dark:text-white cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                   Keluar

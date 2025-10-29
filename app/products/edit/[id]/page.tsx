@@ -175,7 +175,7 @@ export default function EditProductPage() {
           <Button 
             variant="ghost" 
             onClick={() => router.back()}
-            className="mb-4"
+            className="mb-4 btn-default"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Kembali
@@ -339,13 +339,13 @@ export default function EditProductPage() {
                 type="button"
                 variant="outline"
                 onClick={() => router.back()}
-                className="flex-1"
+                className="flex-1 btn-default"
               >
                 Batal
               </Button>
               <Button
                 type="submit"
-                className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                className="flex-1 bg-primary btn-default hover:bg-primary/90"
                 disabled={loading}
               >
                 {loading ? "Menyimpan..." : "Update Produk"}
