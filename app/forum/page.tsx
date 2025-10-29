@@ -6,7 +6,7 @@ import Footer from "@/components/footer"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Eye, ThumbsUp, Search, Plus, Tag, MessageCircle, X } from "lucide-react"
+import { Eye, ThumbsUp, Search, Plus, Tag, MessageCircle, X, Trash2 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import Link from "next/link"
 
@@ -73,6 +73,28 @@ export default function ForumPage() {
     fetchThreads()
   }, [])
 
+  const handleDeleteThread = async (threadId: string | number, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!confirm("Apakah Anda yakin ingin menghapus forum ini?")) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/forum/threads/${threadId}`, {
+        method: "DELETE",
+      })
+
+      if (!response.ok) throw new Error("Failed to delete thread")
+      
+      setThreads(threads.filter(thread => thread.id !== threadId))
+    } catch (err) {
+      console.error("Error deleting thread:", err)
+      setError(err instanceof Error ? err.message : String(err))
+    }
+  }
+
   const filteredThreads = threads.filter((thread) => {
     const matchesSearch =
       thread.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -91,7 +113,7 @@ export default function ForumPage() {
   const handleSubmitThread = async (e: React.FormEvent) => {
     e.preventDefault()
     if (authLoading || !user) {
-      setError("Please log in to create a thread")
+      setError("Please log in to create a forum")
       return
     }
 
@@ -109,7 +131,7 @@ export default function ForumPage() {
         }),
       })
 
-      if (!response.ok) throw new Error("Failed to create thread")
+      if (!response.ok) throw new Error("Failed to create forum")
       const data = await response.json()
       setThreads([data, ...threads])
       setIsModalOpen(false)
@@ -170,7 +192,7 @@ export default function ForumPage() {
 
         {/* Sort and Results */}
         <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-          <p className="text-sm text-foreground/60">{sortedThreads.length} thread ditemukan</p>
+          <p className="text-sm text-foreground/60">{sortedThreads.length} forum ditemukan</p>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
@@ -182,11 +204,24 @@ export default function ForumPage() {
           </select>
         </div>
 
-        {/* Threads List */}
+        {/* Forum List */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {sortedThreads.map((thread) => (
             <Link href={`/forum/${thread.id}`} key={thread.id}>
-              <Card className="p-3 sm:p-4 hover:shadow-lg transition-shadow cursor-pointer border border-border hover:border-primary/50 h-full flex flex-col">
+              <Card className="p-3 sm:p-4 hover:shadow-lg transition-shadow cursor-pointer border border-border hover:border-primary/50 h-full flex flex-col group relative">
+                {/* Delete Button - Only show if user owns the thread */}
+                {user && thread.author === user.id && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-destructive hover:text-destructive-foreground z-10"
+                    onClick={(e) => handleDeleteThread(thread.id, e)}
+                    title="Hapus thread"
+                  >
+                    <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                  </Button>
+                )}
+                
                 <div className="flex-1">
                   <div className="flex items-start gap-1.5 sm:gap-2 mb-2">
                     {thread.isPinned && (
@@ -242,10 +277,10 @@ export default function ForumPage() {
             <div className="w-16 h-16 sm:w-20 sm:h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
               <MessageCircle className="w-8 h-8 sm:w-10 sm:h-10 text-foreground/30" />
             </div>
-            <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">Belum ada thread</h3>
+            <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">Belum ada konten</h3>
             <p className="text-foreground/60 mb-4 text-sm sm:text-base">
               {searchQuery || selectedCategory !== "Semua" 
-                ? "Tidak ada thread yang sesuai dengan pencarian Anda" 
+                ? "Tidak ada forum yang sesuai dengan pencarian Anda" 
                 : "Jadilah yang pertama memulai diskusi"
               }
             </p>

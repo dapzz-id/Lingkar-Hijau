@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { getUserFromServer } from "@/lib/auth-server";
 
 export async function GET(
   request: NextRequest,
@@ -10,7 +11,7 @@ export async function GET(
     const threadId = parseInt(id, 10);
 
     if (isNaN(threadId)) {
-      return NextResponse.json({ error: "Invalid thread ID" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid forum ID" }, { status: 400 });
     }
 
     const sql = `
@@ -35,7 +36,7 @@ export async function GET(
     const results = await query(sql, [threadId]);
 
     if (!Array.isArray(results) || results.length === 0) {
-      return NextResponse.json({ error: "Thread not found" }, { status: 404 });
+      return NextResponse.json({ error: "Forum not found" }, { status: 404 });
     }
 
     const thread = results[0];
@@ -59,7 +60,7 @@ export async function POST(
     const threadId = parseInt(id, 10);
 
     if (isNaN(threadId)) {
-      return NextResponse.json({ error: "Invalid thread ID" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid forum ID" }, { status: 400 });
     }
 
     const body = await request.json().catch(() => null);
@@ -78,7 +79,7 @@ export async function POST(
       { status: 405 }
     );
   } catch (error) {
-    console.error("Error updating thread:", error);
+    console.error("Error updating forum:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
       { error: "Internal server error", details: message },
@@ -96,7 +97,7 @@ export async function PATCH(
     const threadId = parseInt(id, 10);
 
     if (isNaN(threadId)) {
-      return NextResponse.json({ error: "Invalid thread ID" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid forum ID" }, { status: 400 });
     }
 
     const { action } = await request.json();
@@ -123,6 +124,49 @@ export async function PATCH(
     );
   } catch (error) {
     console.error("Error updating likes:", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json(
+      { error: "Internal server error", details: message },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getUserFromServer();
+    if (!user || !user.userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await context.params;
+    const threadId = parseInt(id, 10);
+    
+    if (!threadId) {
+      return NextResponse.json({ error: "Forum ID is required" }, { status: 400 });
+    }
+
+    const checkSql = "SELECT author_id FROM forum_threads WHERE id = ?";
+    const checkResult = await query(checkSql, [threadId]) as any[];
+
+    if (!checkResult || checkResult.length === 0) {
+      return NextResponse.json({ error: "Forum not found" }, { status: 404 });
+    }
+
+    const forum = checkResult[0];
+    if (forum.author_id !== user.userId) {
+      return NextResponse.json({ error: "You can only delete your own forums" }, { status: 403 });
+    }
+
+    const deleteSql = "DELETE FROM forum_threads WHERE id = ?";
+    await query(deleteSql, [threadId]);
+
+    return NextResponse.json({ message: "Forum deleted successfully" }, { status: 200 });
+  } catch (error) {
+    console.error("Error deleting forum:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
       { error: "Internal server error", details: message },
