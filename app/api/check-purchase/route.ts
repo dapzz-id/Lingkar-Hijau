@@ -27,52 +27,56 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid product ID" }, { status: 400 });
     }
 
-    // Cek apakah user sudah pernah membeli produk ini di history_transactions
+    // Cek apakah user sudah pernah membeli produk ini di history_transaction dengan join ke transactions
     const sql = `
       SELECT 
-        ht.id, 
-        ht.rated, 
+        ht.id,
+        ht.rated,
         ht.count_rate,
+        ht.transaction_code,
         r.comment_buyer,
         r.id as review_id
-      FROM history_transactions ht
-      LEFT JOIN reviews r ON ht.id = r.id_transaction AND r.id_products = ?
-      WHERE ht.id_user = ? AND ht.id_product = ? AND ht.status = 'completed'
-      ORDER BY ht.created_at DESC
+      FROM history_transaction ht
+      INNER JOIN transactions t ON t.id = ht.transaction_code
+      INNER JOIN transaction_items ti ON ti.transaction_id = t.id
+      LEFT JOIN reviews r ON ti.product_id = t.id AND r.id_products = ht.id_products AND r.id_buyer = ht.id_buyer
+      WHERE ht.id_buyer = ? AND ht.id_products = ? AND t.status = 'completed'
+      ORDER BY t.created_at DESC
       LIMIT 1
     `;
-    const params = [productId, userId, productId];
+    const params = [userId, productId];
     const results = await query(sql, params);
 
     interface TransactionRow {
       id: number;
       rated: string;
-      count_rate: number;
+      count_rate: number | null;
+      transaction_code: string;
       comment_buyer: string | null;
       review_id: number | null;
     }
     const typedResults = results as TransactionRow[];
 
     if (!Array.isArray(typedResults) || typedResults.length === 0) {
-      return NextResponse.json({ 
-        canReview: false, 
+      return NextResponse.json({
+        canReview: false,
         hasReviewed: false,
-        message: "User belum membeli produk ini atau transaksi belum completed" 
+        message: "User belum membeli produk ini atau transaksi belum completed"
       }, { status: 200 });
     }
 
     const transaction = typedResults[0];
-    
+
     // User bisa review jika transaksi completed
     const canReview = true;
-    
+
     // User sudah review jika rated = 'Sudah' atau ada review_id
     const hasReviewed = transaction.rated === "Sudah" || transaction.review_id !== null;
 
-    return NextResponse.json({ 
-      canReview, 
-      hasReviewed, 
-      transactionId: transaction.id, 
+    return NextResponse.json({
+      canReview,
+      hasReviewed,
+      transactionId: transaction.transaction_code, // Menggunakan transaction_code sebagai transactionId
       count_rate: transaction.count_rate || 0,
       comment_buyer: transaction.comment_buyer || "",
       review_id: transaction.review_id

@@ -53,10 +53,14 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
             reviews.reply_comment_by_seller,
             reviews.created_at,
             seller_users.name AS seller_name,
-            buyer_users.name AS buyer_name
+            buyer_users.name AS buyer_name,
+            ht.count_rate
         FROM reviews
         INNER JOIN users seller_users ON seller_users.id = reviews.id_seller
         INNER JOIN users buyer_users ON buyer_users.id = reviews.id_buyer
+        LEFT JOIN history_transaction ht ON ht.id_products = reviews.id_products 
+            AND ht.id_buyer = reviews.id_buyer 
+            AND ht.rated = 'Sudah'
         WHERE reviews.id_products = ?
         ORDER BY reviews.created_at DESC
     `;

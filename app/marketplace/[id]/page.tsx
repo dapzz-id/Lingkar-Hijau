@@ -53,8 +53,9 @@ export default function Page() {
   const [newComment, setNewComment] = useState<string>("")
   const [newRating, setNewRating] = useState<number>(0)
   const { user, loading: authLoading } = useAuth()
+  const [replyText, setReplyText] = useState<string>("")
+  const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null)
 
-  // Helper function to safely convert rating to number
   const getRatingNumber = (rating: number | string | null | undefined): number => {
     if (rating === null || rating === undefined) return 0
     if (typeof rating === 'number') return rating
@@ -65,16 +66,16 @@ export default function Page() {
     return 0
   }
 
-  // Helper function to format rating display
   const formatRating = (rating: number | string | null | undefined): string => {
     const num = getRatingNumber(rating)
     return num > 0 ? num.toFixed(1) : "0.0"
   }
 
-  // Helper function to get integer rating for star display
   const getIntegerRating = (rating: number | string | null | undefined): number => {
     return Math.floor(getRatingNumber(rating))
   }
+
+  const isSeller = user && productData && user.id === productData.seller_id;
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -108,7 +109,6 @@ export default function Page() {
           return
         }
 
-        console.log("Checking purchase for product:", params.id, "with userId:", user.id)
         const response = await fetch(`/api/check-purchase?product_id=${params.id}`)
         if (!response.ok) throw new Error(`Failed to check purchase (status: ${response.status})`)
         const result = await response.json()
@@ -143,19 +143,27 @@ export default function Page() {
   const handleSubmitReview = async () => {
     try {
       if (authLoading || !user) {
-        alert("Anda harus login untuk memberikan ulasan")
-        return
+        alert("Anda harus login untuk memberikan ulasan");
+        return;
       }
 
       if (!transactionId) {
-        alert("Transaction ID tidak ditemukan")
-        return
+        alert("Transaction ID tidak ditemukan");
+        return;
       }
 
       if (newRating === 0) {
-        alert("Silakan berikan rating terlebih dahulu")
-        return
+        alert("Silakan berikan rating terlebih dahulu");
+        return;
       }
+
+      console.log("Submitting review:", {
+        productId: params.id,
+        comment: newComment,
+        rating: newRating,
+        transactionId: transactionId,
+        hasReviewed: hasReviewed,
+      });
 
       const response = await fetch(`/api/reviews`, {
         method: "POST",
@@ -167,33 +175,85 @@ export default function Page() {
           transactionId: transactionId,
           hasReviewed: hasReviewed,
         }),
-      })
+      });
       
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to submit review")
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to submit review");
       }
       
-      const result = await response.json()
-      console.log("Review submitted successfully:", result)
+      const result = await response.json();
+      if (result.refresh){
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      }
+      console.log("Review submitted successfully:", result);
       
-      // Refresh data produk untuk menampilkan review terbaru
       const fetchProductData = async () => {
-        const response = await fetch(`/api/marketplace/${params.id}`)
+        const response = await fetch(`/api/marketplace/${params.id}`);
         if (response.ok) {
-          const data = await response.json()
-          setProductData(data.data)
+          const data = await response.json();
+          setProductData(data.data);
         }
-      }
-      await fetchProductData()
+      };
+      await fetchProductData();
       
-      // Update status review
-      setHasReviewed(true)
-      alert(hasReviewed ? "Ulasan berhasil diperbarui!" : "Ulasan berhasil dikirim!")
+      setHasReviewed(true);
+      alert(hasReviewed ? "Ulasan berhasil diperbarui!" : "Ulasan berhasil dikirim!");
       
     } catch (err) {
-      console.error("Error submitting review:", err)
-      alert(err instanceof Error ? err.message : "Terjadi kesalahan saat mengirim ulasan")
+      console.error("Error submitting review:", err);
+      alert(err instanceof Error ? err.message : "Terjadi kesalahan saat mengirim ulasan");
+    }
+  }
+
+  const handleSubmitReply = async (reviewId: string) => {
+    try {
+      if (authLoading || !user || !isSeller) {
+        alert("Hanya seller yang dapat membalas ulasan");
+        return;
+      }
+
+      if (!replyText.trim()) {
+        alert("Balasan tidak boleh kosong");
+        return;
+      }
+
+      console.log("Submitting reply:", { reviewId, reply: replyText, productId: params.id });
+
+      const response = await fetch(`/api/reviews`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reviewId,
+          reply: replyText,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to submit reply");
+      }
+
+      const result = await response.json();
+      console.log("Reply submitted successfully:", result);
+
+      const fetchProductData = async () => {
+        const response = await fetch(`/api/marketplace/${params.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setProductData(data.data);
+        }
+      };
+      await fetchProductData();
+
+      setReplyText("");
+      setSelectedReviewId(null);
+      alert("Balasan berhasil dikirim!");
+    } catch (err) {
+      console.error("Error submitting reply:", err);
+      alert(err instanceof Error ? err.message : "Terjadi kesalahan saat mengirim balasan");
     }
   }
 
@@ -209,7 +269,6 @@ export default function Page() {
         console.log('Error sharing:', err)
       }
     } else {
-      // Fallback untuk browser yang tidak support Web Share API
       navigator.clipboard.writeText(window.location.href)
       alert('Link produk berhasil disalin ke clipboard!')
     }
@@ -286,7 +345,6 @@ export default function Page() {
       <Navigation />
 
       <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-        {/* Breadcrumb */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -327,11 +385,10 @@ export default function Page() {
 
           {/* Product Info */}
           <div className="space-y-4 sm:space-y-6">
-            {/* Header */}
             <div>
               <div className="flex items-start justify-between mb-3 sm:mb-4">
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-2 break-words">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-2 wrap-break-word">
                     {productData.name}
                   </h1>
                   <span className="text-blue-600 text-xs sm:text-sm font-medium">
@@ -340,7 +397,7 @@ export default function Page() {
                 </div>
                 <button
                   onClick={() => setIsFavorite(!isFavorite)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition bg-white/80 backdrop-blur-md flex-shrink-0 ml-2"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition bg-white/80 backdrop-blur-md shrink-0 ml-2"
                 >
                   <Heart
                     className={`w-5 h-5 sm:w-6 sm:h-6 ${
@@ -425,7 +482,7 @@ export default function Page() {
                   >
                     −
                   </button>
-                  <span className="px-3 sm:px-4 py-1 sm:py-2 font-semibold text-gray-800 text-sm sm:text-base min-w-[40px] text-center">
+                  <span className="px-3 sm:px-4 py-1 sm:py-2 font-semibold text-gray-800 text-sm sm:text-base min-w-10 text-center">
                     {quantity}
                   </span>
                   <button
@@ -469,7 +526,6 @@ export default function Page() {
           </div>
         </motion.div>
 
-        {/* Tabs Section */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -493,7 +549,6 @@ export default function Page() {
             ))}
           </div>
 
-          {/* Tab Content */}
           <div>
             {activeTab === "description" && (
               <div className="space-y-4 sm:space-y-6">
@@ -573,6 +628,57 @@ export default function Page() {
                               <p className="text-gray-600 text-sm">
                                 {review.reply_comment_by_seller}
                               </p>
+                            </div>
+                          )}
+
+                          {/* Form Balasan untuk Seller */}
+                          {isSeller && (
+                            <div className="mt-3">
+                              <textarea
+                                className="w-full p-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                rows={2}
+                                placeholder="Tulis balasan untuk ulasan ini..."
+                                value={replyText}
+                                onChange={(e) => setReplyText(e.target.value)}
+                                disabled={selectedReviewId !== review.id}
+                              />
+                              <div className="flex gap-2 mt-2">
+                                {selectedReviewId === review.id ? (
+                                  <>
+                                    <Button
+                                      onClick={() => handleSubmitReply(review.id)}
+                                      className="bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                                    >
+                                      {review.reply_comment_by_seller ? "Update Ulasan" : "Kirim Balasan"}
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      onClick={() => {
+                                        setReplyText("");
+                                        setSelectedReviewId(null);
+                                      }}
+                                      className="text-sm"
+                                    >
+                                      Batal
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <Button
+                                    onClick={() => {
+                                      console.log("Opening reply for review:", review.id);
+                                      setSelectedReviewId(review.id);
+                                      // Set nilai awal replyText jika ada balasan yang sudah ada
+                                      if (review.reply_comment_by_seller) {
+                                        setReplyText(review.reply_comment_by_seller);
+                                      }
+                                    }}
+                                    variant="outline"
+                                    className="text-sm"
+                                  >
+                                    {review.reply_comment_by_seller ? "Update Ulasan" : "Balas Ulasan"}
+                                  </Button>
+                                )}
+                              </div>
                             </div>
                           )}
                         </div>

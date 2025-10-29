@@ -4,26 +4,36 @@ import { query } from "@/lib/db"
 
 export async function GET(request: NextRequest) {
   try {
+    // 🔒 Ambil token dari cookie
+    const token = await getAuthCookie()
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 })
+    }
+
     const { searchParams } = new URL(request.url)
-    const sellerId = searchParams.get('seller_id')
+    const sellerId = searchParams.get("seller_id") // opsional, tapi akan diabaikan karena token dipakai
 
     let sql = `
-      SELECT p.*, u.name as seller_name 
-      FROM marketplace_products p 
-      LEFT JOIN users u ON p.seller_id = u.id
-      WHERE 1=1
+      SELECT p.*, u.name AS seller_name
+      FROM marketplace_products p
+      INNER JOIN users u ON p.seller_id = u.id
+      WHERE p.seller_id = ?
     `
-    let params = []
+    const params: any[] = [decoded.userId]
 
-    if (sellerId) {
-      sql += " AND p.seller_id = ?"
-      params.push(sellerId)
+    if (sellerId && sellerId !== decoded.userId.toString()) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
     sql += " ORDER BY p.created_at DESC"
 
     const products = await query(sql, params)
-    
+
     return NextResponse.json({ products }, { status: 200 })
   } catch (error) {
     console.error("Get products error:", error)
