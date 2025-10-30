@@ -419,7 +419,7 @@ export async function classifyPlasticFromImage(
       "projector",
     ];
 
-    // 🔹 Pembeda bahan dasar (plastik / kaca / logam)
+    // Pembeda bahan dasar (plastik / kaca / logam)
     if (["cup", "bottle", "glass"].includes(detectedLabel)) {
       if (/(glass|crystal|wine)/.test(labelMobile)) detectedLabel = "glass";
       else if (/(plastic|disposable)/.test(labelMobile)) detectedLabel = "cup";
