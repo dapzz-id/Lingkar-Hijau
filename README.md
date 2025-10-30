@@ -49,7 +49,8 @@
 - **TensorFlow.js** → untuk deteksi/analisis berbasis AI  
 - **Framer Motion** → animasi interaktif yang halus  
 - **Animate On Scroll (AOS)** → animasi saat scrolling  
-- **Three.js** → visualisasi 3D yang dinamis  
+- **Three.js** → visualisasi 3D yang dinamis
+- **AWS S3** → menyimpan gambar saat proses unggah
 
 ---
 
@@ -73,6 +74,9 @@ cd Lingkar-Hijau
 
 # 3. Instal dependensi
 npm install --force
+
+# 4. Buat env
+cp .env.example .env
 
 # 4. Jalankan server pengembangan
 npm run dev

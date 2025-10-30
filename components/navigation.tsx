@@ -208,10 +208,19 @@ export default function Navigation() {
                 <div className="space-y-2 px-4">
                   <div className="flex items-center gap-2 px-2 py-1 mb-2">
                     <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                    {user.avatar_url ? (
+                      <img
+                        src={user.avatar_url}
+                        alt={user.name}
+                        className="w-8 h-8 bg-cover rounded-full"
+                      />
+                    ) : (
                       <span className="text-primary font-semibold text-sm">
                         {user.name?.charAt(0).toUpperCase() || "U"}
                       </span>
-                    </div>
+                    )}
+                  </div>
+
                     <div>
                       <p className="font-medium text-foreground text-sm">Halo, {user.name}</p>
                       <p className="text-foreground/60 text-xs">{user.email}</p>
